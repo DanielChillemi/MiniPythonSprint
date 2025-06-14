@@ -35,7 +35,7 @@ export default function InventoryPage() {
 
   const handleManualQuantitySubmit = () => {
     if (selectedProduct && manualQuantity.trim()) {
-      const quantity = parseInt(manualQuantity.trim());
+      const quantity = parseFloat(manualQuantity.trim());
       if (!isNaN(quantity) && quantity > 0) {
         addItem(selectedProduct, quantity, 100); // 100% confidence for manual entry
         setManualQuantity(""); // Clear the input
@@ -132,10 +132,11 @@ export default function InventoryPage() {
                       <div className="flex space-x-3">
                         <Input
                           type="number"
-                          min="1"
+                          min="0.01"
+                          step="0.01"
                           value={manualQuantity}
                           onChange={(e) => setManualQuantity(e.target.value)}
-                          placeholder="Enter quantity..."
+                          placeholder="Enter quantity (e.g., 12 or 5.5)..."
                           className="flex-1 handwritten-text bg-yellow-50 border-2 border-dashed border-gray-400 focus:border-blue-400"
                           onKeyDown={(e) => {
                             if (e.key === 'Enter') {
@@ -145,7 +146,7 @@ export default function InventoryPage() {
                         />
                         <Button 
                           onClick={handleManualQuantitySubmit}
-                          disabled={!manualQuantity.trim() || isNaN(parseInt(manualQuantity)) || parseInt(manualQuantity) <= 0}
+                          disabled={!manualQuantity.trim() || isNaN(parseFloat(manualQuantity)) || parseFloat(manualQuantity) <= 0}
                           className="handwritten-text bg-green-200 border-2 border-dashed border-green-400 hover:bg-green-300 text-green-800"
                         >
                           Add Item
