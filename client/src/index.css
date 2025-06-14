@@ -28,6 +28,12 @@
   --surface: hsl(0, 0%, 98%);
   --on-surface: hsl(0, 0%, 13%);
   --error: hsl(0, 75%, 42%);
+  
+  /* Yellow notepad theme */
+  --notepad-yellow: hsl(48, 100%, 88%);
+  --notepad-line: hsl(200, 100%, 70%);
+  --notepad-margin: hsl(0, 100%, 70%);
+  --notepad-shadow: hsla(0, 0%, 0%, 0.1);
 }
 
 .dark {
@@ -67,6 +73,66 @@
 }
 
 @layer components {
+  .notepad-page {
+    background: var(--notepad-yellow);
+    background-image: 
+      linear-gradient(to right, var(--notepad-margin) 80px, transparent 80px),
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 23px,
+        var(--notepad-line) 24px,
+        var(--notepad-line) 25px
+      );
+    box-shadow: 
+      0 2px 8px var(--notepad-shadow),
+      inset 0 0 0 1px hsla(0,0%,0%,0.05);
+    position: relative;
+  }
+  
+  .notepad-card {
+    background: var(--notepad-yellow);
+    background-image: 
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 19px,
+        var(--notepad-line) 20px,
+        var(--notepad-line) 20.5px
+      );
+    box-shadow: 
+      0 1px 3px var(--notepad-shadow),
+      inset 0 0 0 1px hsla(0,0%,0%,0.03);
+    border: none;
+  }
+  
+  .notepad-header {
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+    position: relative;
+  }
+  
+  .notepad-header::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    right: 0;
+    height: 8px;
+    background: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 8px,
+      rgba(0,0,0,0.1) 8px,
+      rgba(0,0,0,0.1) 16px
+    );
+  }
+  
+  .handwritten-text {
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    color: #1e3a8a;
+    line-height: 1.6;
+  }
+  
   .card-shadow {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1), 0 8px 16px rgba(0,0,0,0.1);
   }
@@ -95,7 +161,7 @@
   
   .amplitude-bar {
     transition: height 0.1s ease;
-    background: linear-gradient(to top, var(--accent), hsl(30, 100%, 70%));
+    background: linear-gradient(to top, #f59e0b, #fbbf24);
   }
   
   .bg-surface {
