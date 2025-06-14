@@ -88,7 +88,7 @@ export default function InventoryPage() {
               </CardContent>
             </Card>
 
-            {/* Product Scanner */}
+            {/* Product Scanner & Voice Input */}
             <Card className="notepad-card">
               <CardContent className="p-6">
                 <h3 className="text-lg font-bold handwritten-text text-blue-800 mb-4 flex items-center">
@@ -96,12 +96,23 @@ export default function InventoryPage() {
                   Product Scanner
                 </h3>
                 <ProductLookup onProductFound={handleProductFound} />
+                
+                {/* Voice Recording Section */}
+                {selectedProduct && (
+                  <div className="mt-6 pt-6 border-t-2 border-dashed border-gray-400">
+                    <h4 className="text-md font-bold handwritten-text text-blue-800 mb-4 flex items-center">
+                      <Mic className="mr-3 text-orange-600" />
+                      Voice Quantity Input
+                    </h4>
+                    <VoiceRecorder onQuantityConfirmed={handleQuantityConfirmed} />
+                  </div>
+                )}
               </CardContent>
             </Card>
 
           </div>
 
-          {/* Center Column - Product & Voice */}
+          {/* Center Column - Product Details */}
           <div className="lg:col-span-1 space-y-6">
 
             {/* Product Display */}
@@ -134,19 +145,6 @@ export default function InventoryPage() {
                       <span className="font-bold handwritten-text text-gray-800">{selectedProduct.parLevel} units</span>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Voice Recording */}
-            {selectedProduct && (
-              <Card className="notepad-card">
-                <CardContent className="p-6">
-                  <h3 className="text-lg font-bold handwritten-text text-blue-800 mb-4 flex items-center">
-                    <Mic className="mr-3 text-orange-600" />
-                    Voice Quantity Input
-                  </h3>
-                  <VoiceRecorder onQuantityConfirmed={handleQuantityConfirmed} />
                 </CardContent>
               </Card>
             )}
