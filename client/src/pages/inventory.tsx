@@ -57,7 +57,7 @@ export default function InventoryPage() {
       </header>
 
       <main className="max-w-[2000px] mx-auto px-4 pb-8">
-        <div className="grid grid-cols-1 xl:grid-cols-4 lg:grid-cols-3 gap-6 2xl:gap-8 min-h-[calc(100vh-200px)]">
+        <div className="grid grid-cols-1 xl:grid-cols-3 lg:grid-cols-2 gap-4 2xl:gap-6 min-h-[calc(100vh-200px)]">
         
           {/* Left Column - Controls */}
           <div className="lg:col-span-1 space-y-6">
@@ -112,47 +112,30 @@ export default function InventoryPage() {
 
           </div>
 
-          {/* Center Column - Product Details */}
-          <div className="xl:col-span-1 lg:col-span-1 space-y-6">
+          {/* Right Column - Session Data */}
+          <div className={`${selectedProduct ? 'xl:col-span-2 lg:col-span-1' : 'xl:col-span-2 lg:col-span-1 xl:col-start-2'} space-y-6`}>
 
-            {/* Product Display */}
+            {/* Product Display - only show when product selected */}
             {selectedProduct && (
-              <Card className="notepad-card h-auto flex-1">
-                <CardContent className="p-6">
+              <Card className="notepad-card h-auto">
+                <CardContent className="p-4">
                   <div className="flex items-start space-x-4 mb-4">
-                    <div className="w-16 h-16 bg-yellow-200 border-2 border-dashed border-gray-400 rounded-xl flex items-center justify-center">
-                      <span className="text-2xl">🍷</span>
+                    <div className="w-12 h-12 bg-yellow-200 border-2 border-dashed border-gray-400 rounded-xl flex items-center justify-center">
+                      <span className="text-xl">🍷</span>
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-lg font-bold handwritten-text text-blue-800">{selectedProduct.name}</h3>
-                      <p className="text-sm handwritten-text text-gray-700 mb-1">SKU: {selectedProduct.sku}</p>
-                      <p className="text-lg font-bold handwritten-text text-green-700">${selectedProduct.unitPrice}/unit</p>
+                      <h3 className="text-md font-bold handwritten-text text-blue-800">{selectedProduct.name}</h3>
+                      <p className="text-xs handwritten-text text-gray-700 mb-1">SKU: {selectedProduct.sku}</p>
+                      <p className="text-md font-bold handwritten-text text-green-700">${selectedProduct.unitPrice}/unit</p>
                     </div>
-                  </div>
-                  
-                  <div className="bg-yellow-100 border border-dashed border-gray-400 rounded-lg p-4 mt-6">
-                    <div className="flex justify-between text-sm mb-2">
-                      <span className="font-medium handwritten-text text-gray-700">Last Count:</span>
-                      <span className="handwritten-text text-gray-700">
-                        {selectedProduct.lastCountQuantity} units 
-                        {selectedProduct.lastCountDate && 
-                          ` (${Math.ceil((Date.now() - new Date(selectedProduct.lastCountDate).getTime()) / (1000 * 60 * 60 * 24))} days ago)`
-                        }
-                      </span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="font-medium handwritten-text text-gray-700">Par Level:</span>
-                      <span className="font-bold handwritten-text text-gray-800">{selectedProduct.parLevel} units</span>
+                    <div className="text-xs handwritten-text text-gray-700">
+                      <div>Last: {selectedProduct.lastCountQuantity} units</div>
+                      <div>Par: {selectedProduct.parLevel} units</div>
                     </div>
                   </div>
                 </CardContent>
               </Card>
             )}
-
-          </div>
-
-          {/* Right Column - Session Data */}
-          <div className="xl:col-span-2 lg:col-span-1 space-y-6">
 
             {/* Inventory List */}
             <Card className="notepad-card h-auto flex-1 min-h-[400px]">
