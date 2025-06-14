@@ -42,7 +42,7 @@ export default function InventoryPage() {
                 <Package2 className="text-3xl" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold handwritten-text text-white">Voice Inventory Pro</h1>
+                <h1 className="text-2xl font-bold handwritten-text text-white">AInventory</h1>
                 <p className="text-blue-100 handwritten-text">AI-Powered Beverage Management</p>
               </div>
             </div>

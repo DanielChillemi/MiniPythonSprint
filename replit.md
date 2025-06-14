@@ -1,4 +1,4 @@
-# Voice Inventory Management System
+# AInventory - AI-Powered Inventory Management System
 
 ## Overview
 
@@ -101,6 +101,7 @@ This is a full-stack voice-enabled inventory management application built with R
 - June 14, 2025: Implemented AI-powered camera barcode scanner with training simulation
 - June 14, 2025: Optimized layout for maximized screens with improved space utilization
 - June 14, 2025: Fixed date formatting errors and finalized demo-ready voice inventory system
+- June 14, 2025: Renamed application to "AInventory" for AI-focused branding
 
 ## User Preferences
 
