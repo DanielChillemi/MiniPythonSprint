@@ -136,6 +136,110 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Barcode scanning endpoint using Google Cloud Vision API
+  app.post("/api/scan-barcode", async (req, res) => {
+    try {
+      const { imageData } = req.body;
+      
+      if (!imageData) {
+        return res.status(400).json({ message: "Image data is required" });
+      }
+
+      const apiKey = process.env.GOOGLE_CLOUD_API_KEY;
+      if (!apiKey) {
+        return res.status(500).json({ message: "Google Cloud API key not configured" });
+      }
+
+      // Call Google Cloud Vision API for barcode detection
+      const response = await fetch(`https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          requests: [
+            {
+              image: {
+                content: imageData,
+              },
+              features: [
+                {
+                  type: 'TEXT_DETECTION',
+                  maxResults: 10
+                }
+              ],
+            },
+          ],
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Google Cloud Vision API error:', response.status, errorData);
+        return res.status(500).json({ 
+          message: "Barcode scanning service error",
+          error: `API returned ${response.status}`
+        });
+      }
+
+      const data = await response.json();
+      
+      if (!data.responses || !data.responses[0] || !data.responses[0].textAnnotations) {
+        return res.json({
+          barcode: "",
+          confidence: 0,
+          success: false,
+          message: "No barcode detected"
+        });
+      }
+
+      // Extract potential barcode from detected text
+      const textAnnotations = data.responses[0].textAnnotations;
+      const detectedText = textAnnotations[0]?.description || "";
+      
+      // Look for barcode patterns (12-13 digits)
+      const barcodePattern = /\b\d{12,13}\b/;
+      const barcodeMatch = detectedText.match(barcodePattern);
+      
+      if (barcodeMatch) {
+        // Try to find product by barcode (would need a barcode-to-product mapping)
+        const barcode = barcodeMatch[0];
+        
+        // For demo, map some common barcodes to our products
+        const barcodeToProduct: { [key: string]: string } = {
+          '012345678901': 'Grey Goose',
+          '098765432109': 'Corona',
+          '567890123456': 'Jack Daniels',
+          '345678901234': 'Budweiser',
+          '789012345678': 'Cabernet'
+        };
+        
+        const productName = barcodeToProduct[barcode] || `Product-${barcode}`;
+        
+        res.json({
+          barcode,
+          productName,
+          confidence: 85,
+          success: true
+        });
+      } else {
+        res.json({
+          barcode: "",
+          confidence: 0,
+          success: false,
+          message: "No valid barcode pattern detected"
+        });
+      }
+
+    } catch (error) {
+      console.error('Barcode scanning error:', error);
+      res.status(500).json({ 
+        message: "Barcode scanning failed",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
   // Voice recognition endpoint using Google Cloud Speech-to-Text
   app.post("/api/speech-to-text", async (req, res) => {
     try {
