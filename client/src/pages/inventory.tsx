@@ -110,7 +110,7 @@ export default function InventoryPage() {
                   <span>
                     {selectedProduct.lastCountQuantity} units 
                     {selectedProduct.lastCountDate && 
-                      ` (${Math.ceil((Date.now() - selectedProduct.lastCountDate.getTime()) / (1000 * 60 * 60 * 24))} days ago)`
+                      ` (${Math.ceil((Date.now() - new Date(selectedProduct.lastCountDate).getTime()) / (1000 * 60 * 60 * 24))} days ago)`
                     }
                   </span>
                 </div>
