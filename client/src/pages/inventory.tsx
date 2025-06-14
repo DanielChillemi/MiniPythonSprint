@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { BadgeCheck, Package2, Mic, FileScan, List, FolderSync, Info, Save, CloudUpload } from "lucide-react";
+import { BadgeCheck, Package2, Mic, FileScan, List, FolderSync, Info, Save, CloudUpload, Hash } from "lucide-react";
 import ProductLookup from "@/components/ProductLookup";
 import VoiceRecorder from "@/components/VoiceRecorder";
 import InventorySession from "@/components/InventorySession";
@@ -11,6 +12,7 @@ import { Product } from "@shared/schema";
 
 export default function InventoryPage() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [manualQuantity, setManualQuantity] = useState<string>("");
   const { 
     session, 
     sessionItems, 
@@ -28,6 +30,17 @@ export default function InventoryPage() {
     if (selectedProduct) {
       addItem(selectedProduct, quantity, confidence);
       setSelectedProduct(null);
+    }
+  };
+
+  const handleManualQuantitySubmit = () => {
+    if (selectedProduct && manualQuantity.trim()) {
+      const quantity = parseInt(manualQuantity.trim());
+      if (!isNaN(quantity) && quantity > 0) {
+        addItem(selectedProduct, quantity, 100); // 100% confidence for manual entry
+        setManualQuantity(""); // Clear the input
+        setSelectedProduct(null);
+      }
     }
   };
 
@@ -97,14 +110,49 @@ export default function InventoryPage() {
                 </h3>
                 <ProductLookup onProductFound={handleProductFound} />
                 
-                {/* Voice Recording Section */}
+                {/* Quantity Input Section */}
                 {selectedProduct && (
-                  <div className="mt-6 pt-6 border-t-2 border-dashed border-gray-400">
-                    <h4 className="text-md font-bold handwritten-text text-blue-800 mb-4 flex items-center">
-                      <Mic className="mr-3 text-orange-600" />
-                      Voice Quantity Input
-                    </h4>
-                    <VoiceRecorder onQuantityConfirmed={handleQuantityConfirmed} />
+                  <div className="mt-6 pt-6 border-t-2 border-dashed border-gray-400 space-y-6">
+                    
+                    {/* Voice Input */}
+                    <div>
+                      <h4 className="text-md font-bold handwritten-text text-blue-800 mb-4 flex items-center">
+                        <Mic className="mr-3 text-orange-600" />
+                        Voice Quantity Input
+                      </h4>
+                      <VoiceRecorder onQuantityConfirmed={handleQuantityConfirmed} />
+                    </div>
+
+                    {/* Manual Input */}
+                    <div>
+                      <h4 className="text-md font-bold handwritten-text text-blue-800 mb-4 flex items-center">
+                        <Hash className="mr-3 text-green-600" />
+                        Manual Quantity Input
+                      </h4>
+                      <div className="flex space-x-3">
+                        <Input
+                          type="number"
+                          min="1"
+                          value={manualQuantity}
+                          onChange={(e) => setManualQuantity(e.target.value)}
+                          placeholder="Enter quantity..."
+                          className="flex-1 handwritten-text bg-yellow-50 border-2 border-dashed border-gray-400 focus:border-blue-400"
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              handleManualQuantitySubmit();
+                            }
+                          }}
+                        />
+                        <Button 
+                          onClick={handleManualQuantitySubmit}
+                          disabled={!manualQuantity.trim() || isNaN(parseInt(manualQuantity)) || parseInt(manualQuantity) <= 0}
+                          className="handwritten-text bg-green-200 border-2 border-dashed border-green-400 hover:bg-green-300 text-green-800"
+                        >
+                          Add Item
+                        </Button>
+                      </div>
+                    </div>
+
                   </div>
                 )}
               </CardContent>
