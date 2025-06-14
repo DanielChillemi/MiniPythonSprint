@@ -56,8 +56,8 @@ export default function InventoryPage() {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-6 pb-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <main className="max-w-[2000px] mx-auto px-4 pb-8">
+        <div className="grid grid-cols-1 xl:grid-cols-4 lg:grid-cols-3 gap-6 2xl:gap-8 min-h-[calc(100vh-200px)]">
         
           {/* Left Column - Controls */}
           <div className="lg:col-span-1 space-y-6">
@@ -113,7 +113,7 @@ export default function InventoryPage() {
           </div>
 
           {/* Center Column - Product Details */}
-          <div className="lg:col-span-1 space-y-6">
+          <div className="xl:col-span-1 lg:col-span-1 space-y-6">
 
             {/* Product Display */}
             {selectedProduct && (
@@ -152,7 +152,7 @@ export default function InventoryPage() {
           </div>
 
           {/* Right Column - Session Data */}
-          <div className="lg:col-span-1 space-y-6">
+          <div className="xl:col-span-2 lg:col-span-1 space-y-6">
 
             {/* Inventory List */}
             <Card className="notepad-card">
