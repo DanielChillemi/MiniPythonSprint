@@ -63,7 +63,7 @@ export default function InventoryPage() {
           <div className="lg:col-span-1 space-y-6">
             
             {/* Session Status */}
-            <Card className="notepad-card">
+            <Card className="notepad-card h-auto">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-xl font-bold handwritten-text text-blue-800">Live Session</h2>
@@ -89,7 +89,7 @@ export default function InventoryPage() {
             </Card>
 
             {/* Product Scanner & Voice Input */}
-            <Card className="notepad-card">
+            <Card className="notepad-card h-auto flex-1">
               <CardContent className="p-6">
                 <h3 className="text-lg font-bold handwritten-text text-blue-800 mb-4 flex items-center">
                   <FileScan className="mr-3 text-blue-600" />
@@ -117,7 +117,7 @@ export default function InventoryPage() {
 
             {/* Product Display */}
             {selectedProduct && (
-              <Card className="notepad-card">
+              <Card className="notepad-card h-auto flex-1">
                 <CardContent className="p-6">
                   <div className="flex items-start space-x-4 mb-4">
                     <div className="w-16 h-16 bg-yellow-200 border-2 border-dashed border-gray-400 rounded-xl flex items-center justify-center">
@@ -155,7 +155,7 @@ export default function InventoryPage() {
           <div className="xl:col-span-2 lg:col-span-1 space-y-6">
 
             {/* Inventory List */}
-            <Card className="notepad-card">
+            <Card className="notepad-card h-auto flex-1 min-h-[400px]">
               <CardContent className="p-6">
                 <h3 className="text-lg font-bold handwritten-text text-blue-800 mb-4 flex items-center justify-between">
                   <span className="flex items-center">
@@ -165,12 +165,14 @@ export default function InventoryPage() {
                   <span className="text-sm bg-purple-200 text-purple-800 px-2 py-1 rounded-full handwritten-text">{sessionItems.length} items</span>
                 </h3>
                 
-                <InventorySession items={sessionItems} />
+                <div className="max-h-96 overflow-y-auto">
+                  <InventorySession items={sessionItems} />
+                </div>
               </CardContent>
             </Card>
 
             {/* MarginEdge Integration */}
-            <Card className="notepad-card">
+            <Card className="notepad-card h-auto">
               <CardContent className="p-6">
                 <h3 className="text-lg font-bold handwritten-text text-blue-800 mb-4 flex items-center">
                   <FolderSync className="mr-3 text-green-600" />
@@ -188,7 +190,7 @@ export default function InventoryPage() {
                     </p>
                   </div>
                   
-                  <div className="grid grid-cols-1 gap-3">
+                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
                     <Button 
                       variant="secondary"
                       className="text-sm font-medium py-3 handwritten-text bg-yellow-200 border-2 border-dashed border-gray-400 hover:bg-yellow-300"
