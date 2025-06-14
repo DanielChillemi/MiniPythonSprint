@@ -117,8 +117,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Google Cloud Speech-to-Text API integration
       const { SpeechClient } = await import('@google-cloud/speech');
       const speechClient = new SpeechClient({
-        keyFilename: process.env.GOOGLE_CLOUD_KEY_FILE || undefined,
-        credentials: process.env.GOOGLE_CLOUD_CREDENTIALS ? JSON.parse(process.env.GOOGLE_CLOUD_CREDENTIALS) : undefined
+        apiKey: 'AIzaSyAZwadrT1ROO8KFBMvfSbsBTzj9G-DRvdg'
       });
 
       const request = {
