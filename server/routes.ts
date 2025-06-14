@@ -15,7 +15,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get product by SKU
+  // Search products by name, SKU, or category
+  app.get("/api/products/search/:query", async (req, res) => {
+    try {
+      const { query } = req.params;
+      
+      // First try exact SKU match
+      const productBySku = await storage.getProductBySku(query);
+      if (productBySku) {
+        return res.json(productBySku);
+      }
+      
+      // Then search by name (partial match)
+      const allProducts = await storage.getAllProducts();
+      const searchTerm = query.toLowerCase();
+      
+      const matchedProduct = allProducts.find(product => 
+        product.name.toLowerCase().includes(searchTerm) ||
+        product.sku.toLowerCase().includes(searchTerm) ||
+        product.category.toLowerCase().includes(searchTerm)
+      );
+      
+      if (matchedProduct) {
+        return res.json(matchedProduct);
+      }
+      
+      res.status(404).json({ message: "Product not found" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to search products" });
+    }
+  });
+
+  // Get product by SKU (backwards compatibility)
   app.get("/api/products/sku/:sku", async (req, res) => {
     try {
       const { sku } = req.params;
@@ -225,6 +256,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 }
 
 function extractQuantityFromText(text: string): number {
+  if (!text) return 0;
   const lowerText = text.toLowerCase();
   
   // Number word mappings

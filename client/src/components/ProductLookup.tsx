@@ -16,7 +16,7 @@ export default function ProductLookup({ onProductFound }: ProductLookupProps) {
   const { toast } = useToast();
 
   const { data: product, isLoading, refetch } = useQuery({
-    queryKey: [`/api/products/sku/${productId}`],
+    queryKey: [`/api/products/search/${productId}`],
     enabled: false,
   });
 
@@ -85,7 +85,12 @@ export default function ProductLookup({ onProductFound }: ProductLookupProps) {
         try {
           // Convert blob to base64
           const arrayBuffer = await audioBlob.arrayBuffer();
-          const base64Audio = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+          const uint8Array = new Uint8Array(arrayBuffer);
+          let binaryString = '';
+          for (let i = 0; i < uint8Array.length; i++) {
+            binaryString += String.fromCharCode(uint8Array[i]);
+          }
+          const base64Audio = btoa(binaryString);
 
           const response = await fetch('/api/speech-to-text', {
             method: 'POST',
