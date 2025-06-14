@@ -106,9 +106,8 @@ export default function ProductLookup({ onProductFound }: ProductLookupProps) {
           if (response.ok) {
             const result = await response.json();
             if (result.success && result.transcript) {
-              // Clean up transcript and use as product ID
-              const cleanTranscript = result.transcript.replace(/[^\w\-]/g, '').toUpperCase();
-              setProductId(cleanTranscript);
+              // Use the raw transcript for searching (no cleaning needed for name search)
+              setProductId(result.transcript.trim());
               
               toast({
                 title: "Voice Recognition",
@@ -153,7 +152,7 @@ export default function ProductLookup({ onProductFound }: ProductLookupProps) {
       <div className="relative">
         <Input
           type="text"
-          placeholder="Scan barcode, speak, or type Product ID"
+          placeholder="Say product name, scan barcode, or type (e.g. 'Corona', 'Jack Daniels')"
           value={productId}
           onChange={(e) => setProductId(e.target.value)}
           onKeyPress={handleKeyPress}
