@@ -128,9 +128,36 @@
   }
   
   .handwritten-text {
-    font-family: 'Comic Sans MS', cursive, sans-serif;
+    font-family: 'Patrick Hand', 'Kalam', 'Caveat', cursive, sans-serif;
     color: #1e3a8a;
-    line-height: 1.6;
+    line-height: 1.8;
+    transform: rotate(-0.3deg);
+    letter-spacing: 0.3px;
+    font-weight: 400;
+    text-shadow: 0.5px 0.5px 0px rgba(30, 58, 138, 0.1);
+  }
+  
+  .handwritten-text:nth-child(2n) {
+    transform: rotate(0.4deg);
+    font-family: 'Caveat', 'Patrick Hand', cursive;
+    letter-spacing: 0.2px;
+  }
+  
+  .handwritten-text:nth-child(3n) {
+    transform: rotate(-0.1deg);
+    font-family: 'Kalam', 'Patrick Hand', cursive;
+    letter-spacing: 0.4px;
+  }
+  
+  .handwritten-text:nth-child(4n) {
+    transform: rotate(0.2deg);
+    letter-spacing: 0.1px;
+  }
+  
+  h1.handwritten-text, h2.handwritten-text, h3.handwritten-text {
+    font-family: 'Caveat', 'Patrick Hand', cursive;
+    font-weight: 600;
+    transform: rotate(-0.2deg);
   }
   
   .card-shadow {
