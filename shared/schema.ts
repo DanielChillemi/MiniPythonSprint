@@ -33,7 +33,7 @@ export const inventoryItems = pgTable("inventory_items", {
   id: serial("id").primaryKey(),
   sessionId: integer("session_id").notNull(),
   productId: integer("product_id").notNull(),
-  quantity: integer("quantity").notNull(),
+  quantity: decimal("quantity", { precision: 10, scale: 2 }).notNull(),
   unitPrice: decimal("unit_price", { precision: 10, scale: 2 }).notNull(),
   totalValue: decimal("total_value", { precision: 10, scale: 2 }).notNull(),
   recordedAt: timestamp("recorded_at").notNull(),
