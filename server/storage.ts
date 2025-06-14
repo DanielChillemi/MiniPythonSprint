@@ -125,14 +125,28 @@ export class MemStorage implements IStorage {
 
   async createProduct(insertProduct: InsertProduct): Promise<Product> {
     const id = this.currentProductId++;
-    const product: Product = { ...insertProduct, id };
+    const product: Product = { 
+      ...insertProduct, 
+      id,
+      parLevel: insertProduct.parLevel ?? null,
+      lastCountQuantity: insertProduct.lastCountQuantity ?? null,
+      lastCountDate: insertProduct.lastCountDate ?? null
+    };
     this.products.set(id, product);
     return product;
   }
 
   async createInventorySession(insertSession: InsertInventorySession): Promise<InventorySession> {
     const id = this.currentSessionId++;
-    const session: InventorySession = { ...insertSession, id };
+    const session: InventorySession = { 
+      ...insertSession, 
+      id,
+      endTime: insertSession.endTime ?? null,
+      userId: insertSession.userId ?? null,
+      totalItems: insertSession.totalItems ?? 0,
+      totalValue: insertSession.totalValue ?? "0.00",
+      syncedToMarginEdge: insertSession.syncedToMarginEdge ?? false
+    };
     this.inventorySessions.set(id, session);
     return session;
   }
@@ -152,7 +166,11 @@ export class MemStorage implements IStorage {
 
   async addInventoryItem(insertItem: InsertInventoryItem): Promise<InventoryItem> {
     const id = this.currentItemId++;
-    const item: InventoryItem = { ...insertItem, id };
+    const item: InventoryItem = { 
+      ...insertItem, 
+      id,
+      recognitionConfidence: insertItem.recognitionConfidence ?? null
+    };
     this.inventoryItems.set(id, item);
     return item;
   }

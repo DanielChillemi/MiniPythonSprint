@@ -34,11 +34,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create inventory session
   app.post("/api/inventory-sessions", async (req, res) => {
     try {
-      const sessionData = insertInventorySessionSchema.parse(req.body);
+      const sessionData = insertInventorySessionSchema.parse({
+        ...req.body,
+        startTime: new Date(req.body.startTime)
+      });
       const session = await storage.createInventorySession(sessionData);
       res.status(201).json(session);
     } catch (error) {
-      res.status(400).json({ message: "Invalid session data" });
+      console.error('Session creation error:', error);
+      res.status(400).json({ message: "Invalid session data", error: error instanceof Error ? error.message : "Unknown error" });
     }
   });
 
@@ -78,11 +82,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Add inventory item
   app.post("/api/inventory-items", async (req, res) => {
     try {
-      const itemData = insertInventoryItemSchema.parse(req.body);
+      const itemData = insertInventoryItemSchema.parse({
+        ...req.body,
+        recordedAt: new Date(req.body.recordedAt)
+      });
       const item = await storage.addInventoryItem(itemData);
       res.status(201).json(item);
     } catch (error) {
-      res.status(400).json({ message: "Invalid item data" });
+      console.error('Item creation error:', error);
+      res.status(400).json({ message: "Invalid item data", error: error instanceof Error ? error.message : "Unknown error" });
     }
   });
 
