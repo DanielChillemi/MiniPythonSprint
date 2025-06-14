@@ -96,6 +96,10 @@ This is a full-stack voice-enabled inventory management application built with R
 - June 14, 2025: Added PostgreSQL database integration replacing in-memory storage
 - June 14, 2025: Implemented complete inventory workflow with voice recognition simulation
 - June 14, 2025: Enhanced UI with authentic yellow notepad aesthetic and handwritten text effects
+- June 14, 2025: Integrated Google Cloud Speech-to-Text and Vision APIs for real voice recognition and barcode scanning
+- June 14, 2025: Added smart product search by name with 15+ beverage products
+- June 14, 2025: Implemented AI-powered camera barcode scanner with training simulation
+- June 14, 2025: Optimized layout for maximized screens with improved space utilization
 
 ## User Preferences
 
