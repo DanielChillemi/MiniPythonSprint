@@ -92,7 +92,9 @@ This is a full-stack voice-enabled inventory management application built with R
 
 ## Changelog
 
-- June 14, 2025. Initial setup
+- June 14, 2025: Initial setup with voice inventory management system
+- June 14, 2025: Added PostgreSQL database integration replacing in-memory storage
+- June 14, 2025: Implemented complete inventory workflow with voice recognition simulation
 
 ## User Preferences
 

@@ -12,6 +12,8 @@ import {
   type InventoryItem,
   type InsertInventoryItem
 } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -31,155 +33,80 @@ export interface IStorage {
   getInventoryItemsBySession(sessionId: number): Promise<InventoryItem[]>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private products: Map<number, Product>;
-  private inventorySessions: Map<number, InventorySession>;
-  private inventoryItems: Map<number, InventoryItem>;
-  private currentUserId: number;
-  private currentProductId: number;
-  private currentSessionId: number;
-  private currentItemId: number;
-
-  constructor() {
-    this.users = new Map();
-    this.products = new Map();
-    this.inventorySessions = new Map();
-    this.inventoryItems = new Map();
-    this.currentUserId = 1;
-    this.currentProductId = 1;
-    this.currentSessionId = 1;
-    this.currentItemId = 1;
-    
-    // Initialize with mock products
-    this.initializeMockProducts();
-  }
-
-  private initializeMockProducts() {
-    const mockProducts: Omit<Product, 'id'>[] = [
-      {
-        sku: "VDK-GG-750",
-        name: "Grey Goose Vodka 750ml",
-        unitPrice: "34.99",
-        category: "Spirits",
-        parLevel: 12,
-        lastCountQuantity: 8,
-        lastCountDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
-      },
-      {
-        sku: "BEER-COR-24",
-        name: "Corona Extra 12oz (24-pack)",
-        unitPrice: "28.24",
-        category: "Beer",
-        parLevel: 8,
-        lastCountQuantity: 6,
-        lastCountDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000)
-      },
-      {
-        sku: "WINE-CAB-750",
-        name: "Cabernet Sauvignon 750ml",
-        unitPrice: "20.00",
-        category: "Wine",
-        parLevel: 24,
-        lastCountQuantity: 18,
-        lastCountDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
-      }
-    ];
-
-    mockProducts.forEach(product => {
-      const id = this.currentProductId++;
-      this.products.set(id, { ...product, id });
-    });
-  }
-
+export class DatabaseStorage implements IStorage {
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentUserId++;
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
     return user;
   }
 
   async getProduct(id: number): Promise<Product | undefined> {
-    return this.products.get(id);
+    const [product] = await db.select().from(products).where(eq(products.id, id));
+    return product || undefined;
   }
 
   async getProductBySku(sku: string): Promise<Product | undefined> {
-    return Array.from(this.products.values()).find(
-      (product) => product.sku === sku,
-    );
+    const [product] = await db.select().from(products).where(eq(products.sku, sku));
+    return product || undefined;
   }
 
   async getAllProducts(): Promise<Product[]> {
-    return Array.from(this.products.values());
+    return await db.select().from(products);
   }
 
   async createProduct(insertProduct: InsertProduct): Promise<Product> {
-    const id = this.currentProductId++;
-    const product: Product = { 
-      ...insertProduct, 
-      id,
-      parLevel: insertProduct.parLevel ?? null,
-      lastCountQuantity: insertProduct.lastCountQuantity ?? null,
-      lastCountDate: insertProduct.lastCountDate ?? null
-    };
-    this.products.set(id, product);
+    const [product] = await db
+      .insert(products)
+      .values(insertProduct)
+      .returning();
     return product;
   }
 
   async createInventorySession(insertSession: InsertInventorySession): Promise<InventorySession> {
-    const id = this.currentSessionId++;
-    const session: InventorySession = { 
-      ...insertSession, 
-      id,
-      endTime: insertSession.endTime ?? null,
-      userId: insertSession.userId ?? null,
-      totalItems: insertSession.totalItems ?? 0,
-      totalValue: insertSession.totalValue ?? "0.00",
-      syncedToMarginEdge: insertSession.syncedToMarginEdge ?? false
-    };
-    this.inventorySessions.set(id, session);
+    const [session] = await db
+      .insert(inventorySessions)
+      .values(insertSession)
+      .returning();
     return session;
   }
 
   async getInventorySession(id: number): Promise<InventorySession | undefined> {
-    return this.inventorySessions.get(id);
+    const [session] = await db.select().from(inventorySessions).where(eq(inventorySessions.id, id));
+    return session || undefined;
   }
 
   async updateInventorySession(id: number, updates: Partial<InventorySession>): Promise<InventorySession | undefined> {
-    const session = this.inventorySessions.get(id);
-    if (!session) return undefined;
-    
-    const updatedSession = { ...session, ...updates };
-    this.inventorySessions.set(id, updatedSession);
-    return updatedSession;
+    const [session] = await db
+      .update(inventorySessions)
+      .set(updates)
+      .where(eq(inventorySessions.id, id))
+      .returning();
+    return session || undefined;
   }
 
   async addInventoryItem(insertItem: InsertInventoryItem): Promise<InventoryItem> {
-    const id = this.currentItemId++;
-    const item: InventoryItem = { 
-      ...insertItem, 
-      id,
-      recognitionConfidence: insertItem.recognitionConfidence ?? null
-    };
-    this.inventoryItems.set(id, item);
+    const [item] = await db
+      .insert(inventoryItems)
+      .values(insertItem)
+      .returning();
     return item;
   }
 
   async getInventoryItemsBySession(sessionId: number): Promise<InventoryItem[]> {
-    return Array.from(this.inventoryItems.values()).filter(
-      (item) => item.sessionId === sessionId,
-    );
+    return await db.select().from(inventoryItems).where(eq(inventoryItems.sessionId, sessionId));
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();

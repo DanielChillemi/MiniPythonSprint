@@ -181,7 +181,7 @@ export default function InventoryPage() {
                 </Button>
                 <Button 
                   className="text-sm ripple"
-                  onClick={() => session && syncToMarginEdge(session.id)}
+                  onClick={() => session?.id && syncToMarginEdge(session.id)}
                   disabled={isLoading || sessionItems.length === 0}
                 >
                   <CloudUpload className="w-4 h-4 mr-1" />
