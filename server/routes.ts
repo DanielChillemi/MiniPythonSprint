@@ -105,7 +105,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Voice recognition endpoint
+  // Voice recognition endpoint using Google Cloud Speech-to-Text
   app.post("/api/speech-to-text", async (req, res) => {
     try {
       const { audioData } = req.body;
@@ -114,21 +114,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Audio data is required" });
       }
 
-      // Simulate processing delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const apiKey = process.env.GOOGLE_CLOUD_API_KEY;
+      if (!apiKey) {
+        return res.status(500).json({ message: "Google Cloud API key not configured" });
+      }
 
-      // For demo purposes, simulate voice recognition with random quantities
-      const simulatedQuantities = ["5", "10", "twelve", "3", "eight", "15", "twenty", "7"];
-      const randomTranscript = simulatedQuantities[Math.floor(Math.random() * simulatedQuantities.length)];
+      // Call Google Cloud Speech-to-Text API
+      const response = await fetch(`https://speech.googleapis.com/v1/speech:recognize?key=${apiKey}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          config: {
+            encoding: 'WEBM_OPUS',
+            sampleRateHertz: 48000,
+            languageCode: 'en-US',
+            enableAutomaticPunctuation: true,
+            model: 'default',
+            useEnhanced: true,
+          },
+          audio: {
+            content: audioData,
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Google Cloud Speech API error:', response.status, errorData);
+        return res.status(500).json({ 
+          message: "Speech recognition service error",
+          error: `API returned ${response.status}`
+        });
+      }
+
+      const data = await response.json();
       
-      // Extract quantity from simulated transcript
-      const quantity = extractQuantityFromText(randomTranscript);
-      const confidence = Math.floor(Math.random() * 20) + 80; // 80-99% confidence
+      if (!data.results || data.results.length === 0) {
+        return res.json({
+          transcript: "",
+          confidence: 0,
+          quantity: 0,
+          success: false,
+          message: "No speech detected"
+        });
+      }
+
+      const transcript = data.results[0].alternatives[0].transcript;
+      const confidence = Math.round((data.results[0].alternatives[0].confidence || 0.8) * 100);
+      
+      // Extract quantity from transcript
+      const quantity = extractQuantityFromText(transcript);
 
       res.json({
-        transcript: randomTranscript,
-        confidence: confidence,
-        quantity: quantity,
+        transcript,
+        confidence,
+        quantity,
         success: true
       });
 

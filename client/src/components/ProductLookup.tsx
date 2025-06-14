@@ -54,22 +54,93 @@ export default function ProductLookup({ onProductFound }: ProductLookupProps) {
     }
   };
 
-  const startVoiceInput = () => {
-    setIsListening(true);
-    
-    // Simulate voice recognition for product lookup
-    setTimeout(() => {
-      const mockProductIds = ["VDK-GG-750", "BEER-COR-24", "WINE-CAB-750"];
-      const recognizedProduct = mockProductIds[Math.floor(Math.random() * mockProductIds.length)];
+  const startVoiceInput = async () => {
+    try {
+      setIsListening(true);
       
-      setProductId(recognizedProduct);
-      setIsListening(false);
-      
-      toast({
-        title: "Voice Recognition",
-        description: `Heard: "${recognizedProduct}"`,
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          sampleRate: 48000,
+          channelCount: 1,
+          echoCancellation: true,
+          noiseSuppression: true
+        } 
       });
-    }, 2000);
+
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: 'audio/webm;codecs=opus'
+      });
+      
+      const audioChunks: Blob[] = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunks.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunks, { type: 'audio/webm;codecs=opus' });
+        
+        try {
+          // Convert blob to base64
+          const arrayBuffer = await audioBlob.arrayBuffer();
+          const base64Audio = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+
+          const response = await fetch('/api/speech-to-text', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              audioData: base64Audio
+            }),
+            credentials: 'include',
+          });
+
+          if (response.ok) {
+            const result = await response.json();
+            if (result.success && result.transcript) {
+              // Clean up transcript and use as product ID
+              const cleanTranscript = result.transcript.replace(/[^\w\-]/g, '').toUpperCase();
+              setProductId(cleanTranscript);
+              
+              toast({
+                title: "Voice Recognition",
+                description: `Heard: "${result.transcript}"`,
+              });
+            }
+          }
+        } catch (error) {
+          console.error('Voice recognition error:', error);
+          toast({
+            title: "Voice Recognition Failed",
+            description: "Please try again or type manually",
+            variant: "destructive"
+          });
+        }
+        
+        setIsListening(false);
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      mediaRecorder.start();
+      
+      // Auto-stop after 3 seconds
+      setTimeout(() => {
+        if (mediaRecorder.state === 'recording') {
+          mediaRecorder.stop();
+        }
+      }, 3000);
+      
+    } catch (error) {
+      setIsListening(false);
+      toast({
+        title: "Microphone Access",
+        description: "Please allow microphone access to use voice input",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
