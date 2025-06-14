@@ -43,7 +43,7 @@ export default function InventoryPage() {
               </div>
               <div>
                 <h1 className="text-2xl font-bold handwritten-text text-white">AInventory</h1>
-                <p className="text-blue-100 handwritten-text">AI-Powered Beverage Management</p>
+                <p className="text-blue-100 handwritten-text">AKA "Booze Counter 9000" • AI-Powered Beverage Management</p>
               </div>
             </div>
             <div className="flex items-center space-x-3">
