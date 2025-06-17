@@ -15,7 +15,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Search products by name, SKU, or category
+  // Search products by name, SKU, or brand
   app.get("/api/products/search/:query", async (req, res) => {
     try {
       const { query } = req.params;
@@ -26,14 +26,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json(productBySku);
       }
       
-      // Then search by name (partial match)
+      // Then search by name, brand, or SKU (partial match)
       const allProducts = await storage.getAllProducts();
       const searchTerm = query.toLowerCase();
       
       const matchedProduct = allProducts.find(product => 
         product.name.toLowerCase().includes(searchTerm) ||
         product.sku.toLowerCase().includes(searchTerm) ||
-        product.category.toLowerCase().includes(searchTerm)
+        (product.brand && product.brand.toLowerCase().includes(searchTerm))
       );
       
       if (matchedProduct) {
@@ -42,6 +42,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.status(404).json({ message: "Product not found" });
     } catch (error) {
+      console.error('Product search error:', error);
       res.status(500).json({ message: "Failed to search products" });
     }
   });

@@ -213,8 +213,8 @@ export default function InventoryPage() {
                     </Button>
                     <Button 
                       className="text-sm font-medium py-3 handwritten-text bg-green-200 border-2 border-dashed border-green-400 hover:bg-green-300 text-green-800"
-                      onClick={() => session?.id && syncToMarginEdge(session.id)}
-                      disabled={isLoading || sessionItems.length === 0}
+                      onClick={() => session && syncToMarginEdge(session.id)}
+                      disabled={isLoading || sessionItems.length === 0 || !session}
                     >
                       <CloudUpload className="w-4 h-4 mr-2" />
                       {isLoading ? "Syncing..." : "Sync to MarginEdge"}
