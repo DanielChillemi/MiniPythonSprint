@@ -41,6 +41,8 @@ export const products = pgTable("products", {
   maxLevel: integer("max_level"),
   unitOfMeasure: text("unit_of_measure").default("each"), // "each", "case", "bottle", "oz"
   barcode: text("barcode"),
+  individualBarcode: text("individual_barcode"),
+  sixPackBarcode: text("six_pack_barcode"),
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
   lastCountQuantity: decimal("last_count_quantity", { precision: 10, scale: 2 }),

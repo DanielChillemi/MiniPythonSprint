@@ -64,7 +64,19 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getProductByBarcode(barcode: string): Promise<Product | undefined> {
-    const [product] = await db.select().from(products).where(eq(products.barcode, barcode));
+    // First check main barcode (case/bottle)
+    let [product] = await db.select().from(products).where(eq(products.barcode, barcode));
+    
+    if (!product) {
+      // Check individual barcode (single can/bottle)
+      [product] = await db.select().from(products).where(eq(products.individualBarcode, barcode));
+    }
+    
+    if (!product) {
+      // Check six-pack barcode
+      [product] = await db.select().from(products).where(eq(products.sixPackBarcode, barcode));
+    }
+    
     return product || undefined;
   }
 

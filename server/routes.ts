@@ -250,7 +250,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         product.name.toLowerCase().includes(searchTerm) ||
         product.sku.toLowerCase().includes(searchTerm) ||
         (product.brand && product.brand.toLowerCase().includes(searchTerm)) ||
-        (product.barcode && product.barcode.includes(searchTerm))
+        (product.barcode && product.barcode.includes(searchTerm)) ||
+        (product.individualBarcode && product.individualBarcode.includes(searchTerm)) ||
+        (product.sixPackBarcode && product.sixPackBarcode.includes(searchTerm))
       );
       
       if (matchedProduct) {
