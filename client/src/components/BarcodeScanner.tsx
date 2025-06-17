@@ -77,12 +77,15 @@ export default function BarcodeScanner({ onBarcodeDetected }: BarcodeScannerProp
       const imageData = canvas.toDataURL('image/jpeg', 0.8);
       
       // Send to Vision API
-      const result = await apiRequest<BarcodeScanResult>({
-        url: '/api/scan-barcode',
+      const response = await fetch('/api/scan-barcode', {
         method: 'POST',
-        body: { imageData }
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ imageData })
       });
-
+      
+      const result = await response.json() as BarcodeScanResult;
       setLastResult(result);
       onBarcodeDetected(result);
     } catch (error) {
@@ -110,12 +113,15 @@ export default function BarcodeScanner({ onBarcodeDetected }: BarcodeScannerProp
       reader.onload = async (e) => {
         const imageData = e.target?.result as string;
         
-        const result = await apiRequest<BarcodeScanResult>({
-          url: '/api/scan-barcode',
+        const response = await fetch('/api/scan-barcode', {
           method: 'POST',
-          body: { imageData }
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ imageData })
         });
-
+        
+        const result = await response.json() as BarcodeScanResult;
         setLastResult(result);
         onBarcodeDetected(result);
         setIsScanning(false);

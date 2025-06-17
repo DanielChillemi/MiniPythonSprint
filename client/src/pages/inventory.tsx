@@ -6,12 +6,15 @@ import { Badge } from "@/components/ui/badge";
 import { BadgeCheck, Package2, FileScan, List, FolderSync, Info, Save, CloudUpload, Hash } from "lucide-react";
 import ProductLookup from "@/components/ProductLookup";
 import InventorySession from "@/components/InventorySession";
+
 import { useInventorySession } from "@/hooks/useInventorySession";
 import { Product } from "@shared/schema";
 
 export default function InventoryPage() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [manualQuantity, setManualQuantity] = useState<string>("");
+  const [visionTestResult, setVisionTestResult] = useState<string>("");
+  const [isTestingVision, setIsTestingVision] = useState(false);
   const { 
     session, 
     sessionItems, 
@@ -23,6 +26,29 @@ export default function InventoryPage() {
 
   const handleProductFound = (product: Product) => {
     setSelectedProduct(product);
+  };
+
+  const testGoogleCloudVision = async () => {
+    setIsTestingVision(true);
+    try {
+      // Test with a simple barcode image
+      const testImageData = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==";
+      
+      const response = await fetch('/api/scan-barcode', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ imageData: testImageData })
+      });
+      
+      const result = await response.json();
+      setVisionTestResult(`Vision API Status: ${result.success ? 'ACTIVE' : 'Demo Mode'} - ${result.message}`);
+    } catch (error) {
+      setVisionTestResult('Vision API Test Failed');
+    } finally {
+      setIsTestingVision(false);
+    }
   };
 
 
