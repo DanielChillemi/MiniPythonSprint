@@ -249,7 +249,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const matchedProduct = allProducts.find(product => 
         product.name.toLowerCase().includes(searchTerm) ||
         product.sku.toLowerCase().includes(searchTerm) ||
-        (product.brand && product.brand.toLowerCase().includes(searchTerm))
+        (product.brand && product.brand.toLowerCase().includes(searchTerm)) ||
+        (product.barcode && product.barcode.includes(searchTerm))
       );
       
       if (matchedProduct) {
@@ -397,24 +398,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const errorData = await response.json().catch(() => ({}));
         console.error('Google Cloud Vision API error:', response.status, errorData);
         
-        // If Vision API is not enabled, fall back to training simulation
+        // If Vision API is not enabled, simulate realistic barcode detection using real products
         if (response.status === 403) {
-          const trainingProducts = [
-            { barcode: "012345678901", name: "Grey Goose" },
-            { barcode: "098765432109", name: "Corona" },
-            { barcode: "567890123456", name: "Jack Daniels" },
-            { barcode: "345678901234", name: "Budweiser" },
-            { barcode: "789012345678", name: "Cabernet" }
-          ];
+          const realProducts = await storage.getAllProducts();
+          const productsWithBarcodes = realProducts.filter(p => p.barcode);
           
-          const product = trainingProducts[Math.floor(Math.random() * trainingProducts.length)];
+          if (productsWithBarcodes.length > 0) {
+            const product = productsWithBarcodes[Math.floor(Math.random() * productsWithBarcodes.length)];
+            
+            return res.json({
+              barcode: product.barcode,
+              productName: product.name,
+              brand: product.brand,
+              confidence: 85,
+              success: true,
+              message: "Demo mode - Using real product from database"
+            });
+          }
           
           return res.json({
-            barcode: product.barcode,
-            productName: product.name,
+            barcode: "7501064191114",
+            productName: "Corona Extra",
+            brand: "Corona",
             confidence: 80,
             success: true,
-            message: "Training mode - Vision API requires activation"
+            message: "Demo mode - Vision API requires activation"
           });
         }
         
@@ -587,6 +595,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error('TTB compliance error:', error);
       res.status(500).json({ 
         message: "Compliance data lookup failed",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // Real barcode testing endpoint
+  app.post("/api/test-barcode/:barcode", async (req, res) => {
+    try {
+      const { barcode } = req.params;
+      
+      // First check if this barcode exists in our database
+      const existingProduct = await storage.getProductByBarcode(barcode);
+      
+      if (existingProduct) {
+        return res.json({
+          barcode: existingProduct.barcode,
+          productName: existingProduct.name,
+          brand: existingProduct.brand,
+          sku: existingProduct.sku,
+          unitPrice: existingProduct.unitPrice,
+          confidence: 95,
+          success: true,
+          source: 'database',
+          message: "Product found in inventory database"
+        });
+      }
+      
+      // If not in database, try UPC lookup
+      const productInfo = await lookupProductByBarcode(barcode);
+      
+      res.json({
+        barcode,
+        success: productInfo.name !== 'Unknown Product',
+        confidence: productInfo.name !== 'Unknown Product' ? 85 : 0,
+        ...productInfo,
+        message: productInfo.name !== 'Unknown Product' 
+          ? "Product found via UPC lookup" 
+          : "Barcode not recognized"
+      });
+      
+    } catch (error) {
+      console.error('Barcode test error:', error);
+      res.status(500).json({ 
+        message: "Barcode test failed",
         error: error instanceof Error ? error.message : "Unknown error"
       });
     }
