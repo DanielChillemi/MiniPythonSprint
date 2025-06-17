@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { FileScan, Mic, MicOff, Camera, X } from "lucide-react";
+import { Camera, X, Search, ScanLine } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Product } from "@shared/schema";
@@ -12,8 +12,8 @@ interface ProductLookupProps {
 
 export default function ProductLookup({ onProductFound }: ProductLookupProps) {
   const [productId, setProductId] = useState("");
-  const [isListening, setIsListening] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
+  const [scanningStatus, setScanningStatus] = useState("");
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { toast } = useToast();
@@ -27,7 +27,7 @@ export default function ProductLookup({ onProductFound }: ProductLookupProps) {
     if (!productId.trim()) {
       toast({
         title: "Error",
-        description: "Please enter a product ID or scan a barcode",
+        description: "Please enter a product name, brand, or SKU",
         variant: "destructive",
       });
       return;
@@ -35,17 +35,18 @@ export default function ProductLookup({ onProductFound }: ProductLookupProps) {
 
     try {
       const result = await refetch();
-      if (result.data) {
-        onProductFound(result.data);
+      if (result.data && result.data.id) {
+        onProductFound(result.data as Product);
+        setProductId(""); // Clear search after successful find
         toast({
           title: "Product Found",
-          description: `${result.data.name} loaded successfully`,
+          description: `${result.data.brand || 'Product'} ${result.data.name} loaded successfully`,
         });
       }
     } catch (error) {
       toast({
         title: "Product Not Found",
-        description: "Please check the ID and try again",
+        description: "Try searching by brand name (e.g., 'Corona', 'Jack Daniels')",
         variant: "destructive",
       });
     }
@@ -57,323 +58,186 @@ export default function ProductLookup({ onProductFound }: ProductLookupProps) {
     }
   };
 
-  const startVoiceInput = async () => {
+  const startCameraScanning = async () => {
     try {
-      setIsListening(true);
-      
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        audio: {
-          sampleRate: 48000,
-          channelCount: 1,
-          echoCancellation: true,
-          noiseSuppression: true
-        } 
-      });
-
-      const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: 'audio/webm;codecs=opus'
-      });
-      
-      const audioChunks: Blob[] = [];
-
-      mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          audioChunks.push(event.data);
-        }
-      };
-
-      mediaRecorder.onstop = async () => {
-        const audioBlob = new Blob(audioChunks, { type: 'audio/webm;codecs=opus' });
-        
-        try {
-          // Convert blob to base64
-          const arrayBuffer = await audioBlob.arrayBuffer();
-          const uint8Array = new Uint8Array(arrayBuffer);
-          let binaryString = '';
-          for (let i = 0; i < uint8Array.length; i++) {
-            binaryString += String.fromCharCode(uint8Array[i]);
-          }
-          const base64Audio = btoa(binaryString);
-
-          const response = await fetch('/api/speech-to-text', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              audioData: base64Audio
-            }),
-            credentials: 'include',
-          });
-
-          if (response.ok) {
-            const result = await response.json();
-            if (result.success && result.transcript) {
-              // Use the raw transcript for searching (no cleaning needed for name search)
-              setProductId(result.transcript.trim());
-              
-              toast({
-                title: "Voice Recognition",
-                description: `Heard: "${result.transcript}"`,
-              });
-            }
-          }
-        } catch (error) {
-          console.error('Voice recognition error:', error);
-          toast({
-            title: "Voice Recognition Failed",
-            description: "Please try again or type manually",
-            variant: "destructive"
-          });
-        }
-        
-        setIsListening(false);
-        stream.getTracks().forEach(track => track.stop());
-      };
-
-      mediaRecorder.start();
-      
-      // Auto-stop after 3 seconds
-      setTimeout(() => {
-        if (mediaRecorder.state === 'recording') {
-          mediaRecorder.stop();
-        }
-      }, 3000);
-      
-    } catch (error) {
-      setIsListening(false);
-      toast({
-        title: "Microphone Access",
-        description: "Please allow microphone access to use voice input",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const startScanning = async () => {
-    try {
+      setScanningStatus("Starting camera...");
       setIsScanning(true);
       
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { 
-          facingMode: 'environment',
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: 'environment', // Use back camera for barcode scanning
           width: { ideal: 1280 },
           height: { ideal: 720 }
-        } 
+        }
       });
 
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        videoRef.current.play();
+        await videoRef.current.play();
+        setScanningStatus("Point camera at barcode...");
+        
+        // Auto-capture after 3 seconds for better scanning
+        setTimeout(() => {
+          if (isScanning) {
+            captureAndScanBarcode();
+          }
+        }, 3000);
       }
-
-      // Simulate barcode detection after 3 seconds
-      setTimeout(() => {
-        captureAndAnalyze();
-      }, 3000);
-
     } catch (error) {
-      setIsScanning(false);
+      console.error('Camera access error:', error);
       toast({
         title: "Camera Access",
-        description: "Please allow camera access to use barcode scanning",
-        variant: "destructive"
+        description: "Please allow camera access for barcode scanning",
+        variant: "destructive",
       });
+      setIsScanning(false);
+      setScanningStatus("");
     }
   };
 
-  const captureAndAnalyze = async () => {
-    if (videoRef.current && canvasRef.current) {
-      const canvas = canvasRef.current;
-      const video = videoRef.current;
-      const ctx = canvas.getContext('2d');
-      
-      if (ctx) {
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        ctx.drawImage(video, 0, 0);
-        
-        try {
-          // Convert canvas to base64
-          const imageData = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
+  const captureAndScanBarcode = async () => {
+    if (!videoRef.current || !canvasRef.current) return;
+
+    const canvas = canvasRef.current;
+    const context = canvas.getContext('2d');
+    if (!context) return;
+
+    setScanningStatus("Scanning barcode...");
+
+    // Capture current video frame
+    canvas.width = videoRef.current.videoWidth;
+    canvas.height = videoRef.current.videoHeight;
+    context.drawImage(videoRef.current, 0, 0);
+
+    // Convert to base64 for API
+    const imageData = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
+
+    try {
+      const response = await fetch('/api/scan-barcode', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ imageData }),
+        credentials: 'include',
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success && result.barcode) {
+          setScanningStatus("Barcode detected! Searching...");
+          setProductId(result.barcode);
           
-          // Call Google Cloud Vision API for real barcode detection
-          const response = await fetch('/api/scan-barcode', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              imageData
-            }),
-            credentials: 'include',
-          });
-
-          if (response.ok) {
-            const result = await response.json();
-            if (result.success && result.productName) {
-              setProductId(result.productName);
-              stopScanning();
-              
-              toast({
-                title: "Barcode Recognized",
-                description: `Detected: ${result.productName} (${result.barcode})`,
-              });
-            } else {
-              // Fallback to training simulation if no barcode detected
-              const trainingProducts = [
-                { name: "Grey Goose Vodka" },
-                { name: "Corona Extra" },
-                { name: "Jack Daniels" },
-                { name: "Budweiser" },
-                { name: "Cabernet Sauvignon" }
-              ];
-              
-              const recognizedProduct = trainingProducts[Math.floor(Math.random() * trainingProducts.length)];
-              
-              setProductId(recognizedProduct.name);
-              stopScanning();
-              
-              toast({
-                title: "AI Pattern Recognition",
-                description: `Training mode detected: ${recognizedProduct.name}`,
-              });
-            }
-          }
-        } catch (error) {
-          console.error('Barcode scanning error:', error);
+          // Auto-search for the detected barcode
+          setTimeout(() => {
+            handleLookup();
+            stopCameraScanning();
+          }, 500);
+          
           toast({
-            title: "Scanning Error",
-            description: "Please try again or use voice input",
-            variant: "destructive"
+            title: "Barcode Detected",
+            description: `Found: ${result.barcode}`,
           });
-          stopScanning();
+        } else {
+          setScanningStatus("No barcode detected. Try again...");
+          setTimeout(() => {
+            if (isScanning) {
+              captureAndScanBarcode();
+            }
+          }, 2000);
         }
+      } else {
+        throw new Error('Scanning failed');
       }
+    } catch (error) {
+      console.error('Barcode scanning error:', error);
+      setScanningStatus("Scanning failed. Try manual search...");
+      setTimeout(() => {
+        stopCameraScanning();
+      }, 2000);
     }
   };
 
-  const stopScanning = () => {
+  const stopCameraScanning = () => {
     if (videoRef.current && videoRef.current.srcObject) {
       const stream = videoRef.current.srcObject as MediaStream;
       stream.getTracks().forEach(track => track.stop());
       videoRef.current.srcObject = null;
     }
     setIsScanning(false);
+    setScanningStatus("");
   };
 
   return (
     <div className="space-y-4">
-      <div className="relative">
+      <div className="flex gap-2">
         <Input
           type="text"
-          placeholder="Say product name, scan barcode, or type (e.g. 'Corona', 'Jack Daniels')"
+          placeholder="Search by brand, name, or SKU (e.g., 'Corona', 'Jack Daniels')"
           value={productId}
           onChange={(e) => setProductId(e.target.value)}
           onKeyPress={handleKeyPress}
-          className="pr-20 text-lg py-3 border-2 handwritten-text bg-yellow-50"
+          className="flex-1 font-patrick-hand text-lg border-2 border-yellow-300 bg-yellow-50 placeholder:text-gray-500"
+          disabled={isLoading}
         />
-        <div className="absolute right-2 top-2 flex space-x-1">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="p-2 text-gray-400 hover:text-primary"
-            onClick={startVoiceInput}
-            disabled={isListening || isScanning}
-          >
-            {isListening ? (
-              <MicOff className="h-5 w-5 text-red-500 animate-pulse" />
-            ) : (
-              <Mic className="h-5 w-5 text-orange-600" />
-            )}
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="p-2 text-gray-400 hover:text-primary"
-            onClick={startScanning}
-            disabled={isListening || isScanning}
-          >
-            <Camera className="h-5 w-5 text-blue-600" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="p-2 text-gray-400 hover:text-primary"
-            onClick={() => {
-              // Quick barcode simulation for demo
-              const mockBarcodes = ["Grey Goose", "Corona", "Jack Daniels"];
-              const randomName = mockBarcodes[Math.floor(Math.random() * mockBarcodes.length)];
-              setProductId(randomName);
-            }}
-          >
-            <FileScan className="h-5 w-5" />
-          </Button>
-        </div>
+        <Button 
+          onClick={handleLookup}
+          disabled={isLoading || !productId.trim()}
+          className="bg-yellow-200 border-2 border-yellow-400 hover:bg-yellow-300 text-gray-800"
+        >
+          <Search className="w-4 h-4" />
+        </Button>
       </div>
-      
-      {/* Camera Scanner Interface */}
+
+      <div className="flex gap-2">
+        <Button 
+          onClick={isScanning ? stopCameraScanning : startCameraScanning}
+          className={`flex-1 font-patrick-hand text-lg py-6 border-2 border-dashed transform -rotate-1 ${
+            isScanning 
+              ? 'bg-red-200 border-red-400 hover:bg-red-300 text-red-800' 
+              : 'bg-blue-200 border-blue-400 hover:bg-blue-300 text-blue-800'
+          }`}
+        >
+          {isScanning ? (
+            <>
+              <X className="w-5 h-5 mr-2" />
+              Stop Scanning
+            </>
+          ) : (
+            <>
+              <Camera className="w-5 h-5 mr-2" />
+              Scan Barcode
+            </>
+          )}
+        </Button>
+      </div>
+
+      {scanningStatus && (
+        <div className="text-center p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <ScanLine className="w-6 h-6 mx-auto mb-2 text-blue-600 animate-pulse" />
+          <p className="font-patrick-hand text-lg text-blue-800 transform rotate-0.5">
+            {scanningStatus}
+          </p>
+        </div>
+      )}
+
       {isScanning && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <div className="flex justify-between items-center mb-4">
-              <div>
-                <h3 className="text-lg font-bold handwritten-text text-blue-800">Google Cloud Vision Scanner</h3>
-                <p className="text-xs text-gray-500">Real-time barcode detection with ML training</p>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={stopScanning}
-                className="p-2"
-              >
-                <X className="h-5 w-5" />
-              </Button>
-            </div>
-            
-            <div className="relative bg-black rounded-lg overflow-hidden mb-4">
-              <video
-                ref={videoRef}
-                className="w-full h-48 object-cover"
-                autoPlay
-                playsInline
-                muted
-              />
-              <div className="absolute inset-0 border-2 border-dashed border-green-400 m-8">
-                <div className="absolute top-2 left-2 bg-green-400 text-black px-2 py-1 text-xs rounded">
-                  AI Training Mode
-                </div>
-              </div>
-              {isScanning && (
-                <div className="absolute bottom-2 left-2 right-2 bg-black bg-opacity-50 text-white text-center py-2 rounded">
-                  <p className="text-sm">Analyzing barcode patterns...</p>
-                  <div className="flex justify-center mt-1">
-                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse mx-1"></div>
-                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse mx-1" style={{animationDelay: '0.2s'}}></div>
-                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse mx-1" style={{animationDelay: '0.4s'}}></div>
-                  </div>
-                </div>
-              )}
-            </div>
-            
-            <div className="text-sm text-gray-600 handwritten-text">
-              <p>• Real Google Cloud Vision barcode detection</p>
-              <p>• Supports UPC, EAN, Code128 formats</p>
-              <p>• Falls back to pattern recognition training</p>
+        <div className="relative bg-black rounded-lg overflow-hidden">
+          <video
+            ref={videoRef}
+            className="w-full h-64 object-cover"
+            playsInline
+            muted
+          />
+          <div className="absolute inset-0 border-4 border-yellow-400 border-dashed pointer-events-none">
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+              <div className="w-48 h-24 border-2 border-yellow-400 bg-yellow-400 bg-opacity-20 rounded-lg"></div>
             </div>
           </div>
         </div>
       )}
 
       <canvas ref={canvasRef} className="hidden" />
-      
-      <Button 
-        onClick={handleLookup}
-        disabled={isLoading || !productId.trim() || isScanning}
-        className="w-full py-3 font-medium handwritten-text bg-yellow-200 border-2 border-dashed border-gray-400 hover:bg-yellow-300"
-      >
-        {isLoading ? "Looking up..." : "Lookup Product"}
-      </Button>
     </div>
   );
 }

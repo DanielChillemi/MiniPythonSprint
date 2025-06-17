@@ -116,6 +116,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const itemData = insertInventoryItemSchema.parse({
         ...req.body,
+        quantity: req.body.quantity.toString(),
+        unitPrice: req.body.unitPrice.toString(),
+        totalValue: req.body.totalValue.toString(),
         recordedAt: new Date(req.body.recordedAt)
       });
       const item = await storage.addInventoryItem(itemData);

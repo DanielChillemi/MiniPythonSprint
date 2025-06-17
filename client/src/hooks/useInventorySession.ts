@@ -67,13 +67,13 @@ export function useInventorySession() {
   });
 
   // Get session items
-  const { data: sessionItems = [] } = useQuery({
+  const { data: sessionItems = [] } = useQuery<InventoryItem[]>({
     queryKey: [`/api/inventory-sessions/${currentSessionId}/items`],
     enabled: !!currentSessionId,
   });
 
   // Get all products for item display
-  const { data: products = [] } = useQuery({
+  const { data: products = [] } = useQuery<Product[]>({
     queryKey: ['/api/products'],
   });
 
@@ -86,7 +86,7 @@ export function useInventorySession() {
   // Add inventory item
   const addItemMutation = useMutation({
     mutationFn: async ({ product, quantity, confidence }: { product: Product, quantity: number, confidence: number }) => {
-      const totalValue = (parseFloat(product.unitPrice) * quantity).toFixed(2);
+      const totalValue = (Number(product.unitPrice) * quantity).toFixed(2);
       
       const response = await apiRequest('POST', '/api/inventory-items', {
         sessionId: currentSessionId,
