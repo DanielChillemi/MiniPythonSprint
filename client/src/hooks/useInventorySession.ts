@@ -61,7 +61,7 @@ export function useInventorySession() {
   };
 
   // Get current session
-  const { data: session } = useQuery({
+  const { data: session } = useQuery<InventorySession>({
     queryKey: [`/api/inventory-sessions/${currentSessionId}`],
     enabled: !!currentSessionId,
   });

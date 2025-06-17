@@ -67,10 +67,10 @@ export default function InventorySession({ items }: InventorySessionProps) {
               {item.quantity}
             </p>
             <p className="text-xs text-gray-500">
-              ${item.product?.unitPrice?.toFixed(2) || '0.00'} each
+              ${item.product?.unitPrice ? Number(item.product.unitPrice).toFixed(2) : '0.00'} each
             </p>
             <p className="text-xs text-green-600 font-medium">
-              ${((item.product?.unitPrice || 0) * item.quantity).toFixed(2)} total
+              ${(Number(item.product?.unitPrice || 0) * Number(item.quantity)).toFixed(2)} total
             </p>
           </div>
         </div>
