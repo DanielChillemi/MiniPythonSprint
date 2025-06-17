@@ -371,6 +371,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(500).json({ message: "Google Cloud API key not configured" });
       }
 
+      // Extract base64 image data (remove data URL prefix if present)
+      let base64Image = imageData.startsWith('data:') 
+        ? imageData.split(',')[1] 
+        : imageData;
+
       // Call Google Cloud Vision API for barcode detection
       const response = await fetch(`https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`, {
         method: 'POST',
@@ -381,7 +386,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           requests: [
             {
               image: {
-                content: imageData,
+                content: base64Image,
               },
               features: [
                 {
