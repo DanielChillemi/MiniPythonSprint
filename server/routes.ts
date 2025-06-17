@@ -53,6 +53,25 @@ async function lookupProductByBarcode(barcode: string): Promise<ProductInfo> {
     console.log('UPCitemdb lookup failed:', error);
   }
 
+  // Tier 3: Barcode Lookup API (100 requests/day free)
+  try {
+    const response = await fetch(`https://api.barcodelookup.com/v3/products?barcode=${barcode}&formatted=y&key=demo`);
+    if (response.ok) {
+      const data = await response.json();
+      if (data.products && data.products.length > 0) {
+        const product = data.products[0];
+        return {
+          name: product.title || product.product_name,
+          brand: product.brand,
+          category: product.category,
+          source: 'barcodelookup'
+        };
+      }
+    }
+  } catch (error) {
+    console.log('Barcode Lookup API failed:', error);
+  }
+
   return { name: 'Unknown Product', source: 'fallback' };
 }
 
@@ -359,6 +378,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error('Barcode scanning error:', error);
       res.status(500).json({ 
         message: "Barcode scanning failed",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // UPC Product Lookup endpoint for testing
+  app.get("/api/upc-lookup/:barcode", async (req, res) => {
+    try {
+      const { barcode } = req.params;
+      const productInfo = await lookupProductByBarcode(barcode);
+      
+      res.json({
+        barcode,
+        success: productInfo.name !== 'Unknown Product',
+        ...productInfo
+      });
+    } catch (error) {
+      console.error('UPC lookup error:', error);
+      res.status(500).json({ 
+        message: "UPC lookup failed",
         error: error instanceof Error ? error.message : "Unknown error"
       });
     }
