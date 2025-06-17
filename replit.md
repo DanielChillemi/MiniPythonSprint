@@ -103,6 +103,9 @@ This is a full-stack voice-enabled inventory management application built with R
 - June 14, 2025: Fixed date formatting errors and finalized demo-ready voice inventory system
 - June 14, 2025: Renamed application to "AInventory" for AI-focused branding
 - June 15, 2025: Removed voice-to-text feature, streamlined to manual quantity input only
+- June 17, 2025: Enhanced database with professional beverage industry structure (18 authentic products, suppliers, categories)
+- June 17, 2025: Pivoted from voice features to AI vision-focused barcode scanning with Google Cloud Vision API
+- June 17, 2025: Fixed database schema validation and product search functionality for enhanced product data display
 
 ## User Preferences
 

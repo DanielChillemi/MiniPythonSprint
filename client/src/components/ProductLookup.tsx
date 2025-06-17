@@ -18,7 +18,7 @@ export default function ProductLookup({ onProductFound }: ProductLookupProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { toast } = useToast();
 
-  const { data: product, isLoading, refetch } = useQuery({
+  const { data: product, isLoading, refetch } = useQuery<Product>({
     queryKey: [`/api/products/search/${productId}`],
     enabled: false,
   });
@@ -35,13 +35,16 @@ export default function ProductLookup({ onProductFound }: ProductLookupProps) {
 
     try {
       const result = await refetch();
-      if (result.data && result.data.id) {
-        onProductFound(result.data as Product);
-        setProductId(""); // Clear search after successful find
-        toast({
-          title: "Product Found",
-          description: `${result.data.brand || 'Product'} ${result.data.name} loaded successfully`,
-        });
+      if (result.data) {
+        const productData = result.data as any;
+        if (productData.id) {
+          onProductFound(productData);
+          setProductId(""); // Clear search after successful find
+          toast({
+            title: "Product Found",
+            description: `${productData.brand || 'Product'} ${productData.name} loaded successfully`,
+          });
+        }
       }
     } catch (error) {
       toast({
