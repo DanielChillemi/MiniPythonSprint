@@ -102,6 +102,7 @@ This is a full-stack voice-enabled inventory management application built with R
 - June 14, 2025: Optimized layout for maximized screens with improved space utilization
 - June 14, 2025: Fixed date formatting errors and finalized demo-ready voice inventory system
 - June 14, 2025: Renamed application to "AInventory" for AI-focused branding
+- June 15, 2025: Removed voice-to-text feature, streamlined to manual quantity input only
 
 ## User Preferences
 
