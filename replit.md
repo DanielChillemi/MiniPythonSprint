@@ -106,6 +106,8 @@ This is a full-stack voice-enabled inventory management application built with R
 - June 17, 2025: Enhanced database with professional beverage industry structure (18 authentic products, suppliers, categories)
 - June 17, 2025: Pivoted from voice features to AI vision-focused barcode scanning with Google Cloud Vision API
 - June 17, 2025: Fixed database schema validation and product search functionality for enhanced product data display
+- June 17, 2025: Activated Google Cloud Vision API for real barcode scanning with user-provided credentials
+- June 17, 2025: Added multi-pack barcode support (individual cans, 6-packs, cases) for realistic inventory scenarios
 
 ## User Preferences
 
