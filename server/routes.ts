@@ -3,6 +3,59 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertInventorySessionSchema, insertInventoryItemSchema } from "@shared/schema";
 
+interface ProductInfo {
+  name?: string;
+  brand?: string;
+  category?: string;
+  image?: string;
+  source: string;
+}
+
+// Multi-tier UPC lookup using free APIs with intelligent fallback
+async function lookupProductByBarcode(barcode: string): Promise<ProductInfo> {
+  // Tier 1: Open Food Facts (100% free, excellent for beverages)
+  try {
+    const response = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
+    if (response.ok) {
+      const data = await response.json();
+      if (data.status === 1 && data.product) {
+        const product = data.product;
+        return {
+          name: product.product_name || product.product_name_en,
+          brand: product.brands,
+          category: product.categories,
+          image: product.image_url,
+          source: 'openfoodfacts'
+        };
+      }
+    }
+  } catch (error) {
+    console.log('Open Food Facts lookup failed:', error);
+  }
+
+  // Tier 2: UPCitemdb.com (100 requests/day free)
+  try {
+    const response = await fetch(`https://api.upcitemdb.com/prod/trial/lookup?upc=${barcode}`);
+    if (response.ok) {
+      const data = await response.json();
+      if (data.code === 'OK' && data.items && data.items.length > 0) {
+        const item = data.items[0];
+        return {
+          name: item.title,
+          brand: item.brand,
+          category: item.category,
+          image: item.images?.[0],
+          source: 'upcitemdb'
+        };
+      }
+    }
+  } catch (error) {
+    console.log('UPCitemdb lookup failed:', error);
+  }
+
+  return { name: 'Unknown Product', source: 'fallback' };
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   
   // Get all products
@@ -231,23 +284,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Try to find product by barcode (would need a barcode-to-product mapping)
         const barcode = barcodeMatch[0];
         
-        // For demo, map some common barcodes to our products
-        const barcodeToProduct: { [key: string]: string } = {
-          '012345678901': 'Grey Goose',
-          '098765432109': 'Corona',
-          '567890123456': 'Jack Daniels',
-          '345678901234': 'Budweiser',
-          '789012345678': 'Cabernet'
-        };
+        // Try to lookup product information from UPC APIs
+        const productInfo = await lookupProductByBarcode(barcode);
         
-        const productName = barcodeToProduct[barcode] || `Product-${barcode}`;
-        
-        res.json({
-          barcode,
-          productName,
-          confidence: 85,
-          success: true
-        });
+        // If we found valid product info, optionally create it in our database
+        if (productInfo.name && productInfo.name !== 'Unknown Product') {
+          try {
+            // Check if product already exists by barcode
+            let existingProduct = await storage.getProductByBarcode(barcode);
+            
+            if (!existingProduct) {
+              // Create new product from UPC data
+              const newProduct = await storage.createProduct({
+                sku: `UPC-${barcode}`,
+                name: productInfo.name,
+                brand: productInfo.brand || null,
+                unitPrice: "0.00", // Will need manual pricing
+                categoryId: null,
+                supplierId: null,
+                size: null,
+                alcoholContent: null,
+                parLevel: 10,
+                unitOfMeasure: "each",
+                barcode: barcode,
+                isActive: true
+              });
+              existingProduct = newProduct;
+            }
+            
+            res.json({
+              barcode,
+              productName: productInfo.name,
+              brand: productInfo.brand,
+              category: productInfo.category,
+              image: productInfo.image,
+              product: existingProduct,
+              confidence: 85,
+              success: true,
+              source: productInfo.source
+            });
+            
+          } catch (error) {
+            console.error('Failed to create product from UPC:', error);
+            res.json({
+              barcode,
+              productName: productInfo.name,
+              brand: productInfo.brand,
+              category: productInfo.category,
+              image: productInfo.image,
+              confidence: 85,
+              success: true,
+              source: productInfo.source
+            });
+          }
+        } else {
+          res.json({
+            barcode,
+            productName: "Unknown Product",
+            confidence: 50,
+            success: false,
+            message: "Product not found in UPC databases"
+          });
+        }
       } else {
         res.json({
           barcode: "",
