@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { BadgeCheck, Package2, FileScan, List, FolderSync, Info, Save, CloudUpload, Hash } from "lucide-react";
+import { BadgeCheck, Package2, FileScan, List, FolderSync, Info, Save, CloudUpload, Hash, Eye, Loader2 } from "lucide-react";
 import ProductLookup from "@/components/ProductLookup";
 import InventorySession from "@/components/InventorySession";
 
@@ -129,6 +129,31 @@ export default function InventoryPage() {
                   Product Scanner
                 </h3>
                 <ProductLookup onProductFound={handleProductFound} />
+                
+                {/* Google Cloud Vision API Test */}
+                <div className="mt-4 pt-4 border-t-2 border-dashed border-gray-400">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm handwritten-text text-blue-800 font-semibold">Vision API Status</span>
+                    <Button
+                      onClick={testGoogleCloudVision}
+                      disabled={isTestingVision}
+                      size="sm"
+                      className="bg-blue-600 hover:bg-blue-700 text-white handwritten-text"
+                    >
+                      {isTestingVision ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <Eye className="w-4 h-4 mr-2" />
+                      )}
+                      Test Vision
+                    </Button>
+                  </div>
+                  {visionTestResult && (
+                    <div className="text-xs handwritten-text text-gray-700 bg-blue-50 p-2 rounded border">
+                      {visionTestResult}
+                    </div>
+                  )}
+                </div>
                 
                 {/* Quantity Input Section */}
                 {selectedProduct && (
