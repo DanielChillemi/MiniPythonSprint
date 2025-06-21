@@ -143,6 +143,16 @@ export default function RoadmapPage() {
               </div>
             </div>
             <div className="flex items-center space-x-3">
+              <Link href="/">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="bg-white/10 border-white/20 text-white hover:bg-white/20 handwritten-text"
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back to Inventory
+                </Button>
+              </Link>
               <div className="text-right text-white">
                 <div className="text-2xl font-bold handwritten-text">{progressPercentage}%</div>
                 <div className="text-sm text-blue-100">Complete</div>
