@@ -246,6 +246,11 @@ export default function InventoryPage() {
               </CardContent>
             </Card>
 
+            {/* Weather Intelligence Dashboard */}
+            <div className="space-y-6">
+              <WeatherDashboard />
+            </div>
+
             {/* MarginEdge Integration */}
             <Card className="notepad-card h-auto">
               <CardContent className="p-6">
