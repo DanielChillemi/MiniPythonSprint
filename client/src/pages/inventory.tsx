@@ -3,7 +3,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { BadgeCheck, Package2, FileScan, List, FolderSync, Info, Save, CloudUpload, Hash, Eye, Loader2 } from "lucide-react";
+import { BadgeCheck, Package2, FileScan, List, FolderSync, Info, Save, CloudUpload, Hash, Eye, Loader2, Map } from "lucide-react";
+import { Link } from "wouter";
 import ProductLookup from "@/components/ProductLookup";
 import InventorySession from "@/components/InventorySession";
 
@@ -80,6 +81,16 @@ export default function InventoryPage() {
               </div>
             </div>
             <div className="flex items-center space-x-3">
+              <Link href="/roadmap">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="bg-white/10 border-white/20 text-white hover:bg-white/20 handwritten-text"
+                >
+                  <Map className="w-4 h-4 mr-2" />
+                  Roadmap
+                </Button>
+              </Link>
               <div className="flex items-center space-x-2 bg-green-500/20 px-3 py-1 rounded-full">
                 <BadgeCheck className="text-green-300" />
                 <span className="text-sm handwritten-text">Live Demo</span>
