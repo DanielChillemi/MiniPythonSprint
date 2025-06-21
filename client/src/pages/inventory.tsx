@@ -7,6 +7,7 @@ import { BadgeCheck, Package2, FileScan, List, FolderSync, Info, Save, CloudUplo
 import { Link } from "wouter";
 import ProductLookup from "@/components/ProductLookup";
 import InventorySession from "@/components/InventorySession";
+import WeatherDashboard from "@/components/WeatherDashboard";
 
 import { useInventorySession } from "@/hooks/useInventorySession";
 import { Product } from "@shared/schema";

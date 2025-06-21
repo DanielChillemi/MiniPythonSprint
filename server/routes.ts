@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertInventorySessionSchema, insertInventoryItemSchema } from "@shared/schema";
+import { getWeatherData, calculateDemandForecast, generateWeatherBasedReorders } from "./weather";
 
 interface ProductInfo {
   name?: string;
@@ -602,6 +603,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error('TTB compliance error:', error);
       res.status(500).json({ 
         message: "Compliance data lookup failed",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // Weather-based demand forecasting endpoint
+  app.get("/api/weather-forecast/:location?", async (req, res) => {
+    try {
+      const location = req.params.location || "New York";
+      
+      const weatherData = await getWeatherData(location);
+      const demandForecasts = calculateDemandForecast(weatherData);
+      
+      // Get current inventory for reorder suggestions
+      const allProducts = await storage.getAllProducts();
+      const reorderSuggestions = generateWeatherBasedReorders(demandForecasts, allProducts);
+      
+      res.json({
+        location,
+        weather: weatherData,
+        demandForecasts,
+        reorderSuggestions: reorderSuggestions.slice(0, 10), // Top 10 suggestions
+        summary: {
+          totalSuggestions: reorderSuggestions.length,
+          highPriority: reorderSuggestions.filter(r => r.priority === "High").length,
+          estimatedAdditionalRevenue: reorderSuggestions
+            .reduce((sum, r) => sum + (r.suggestedOrderQuantity * 25), 0) // Rough revenue estimate
+        }
+      });
+      
+    } catch (error) {
+      console.error('Weather forecast error:', error);
+      res.status(500).json({ 
+        message: "Weather forecast failed",
         error: error instanceof Error ? error.message : "Unknown error"
       });
     }
