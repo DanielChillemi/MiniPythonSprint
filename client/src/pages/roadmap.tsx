@@ -50,7 +50,7 @@ export default function RoadmapPage() {
       status: "planned",
       timeline: "September 2025",
       features: [
-        { name: "Weather-Based Demand Forecasting", status: "planned", priority: "medium" },
+        { name: "Weather-Based Demand Forecasting", status: "completed", priority: "medium" },
         { name: "Seasonal Trend Analysis", status: "planned", priority: "medium" },
         { name: "AI-Powered Inventory Optimization", status: "planned", priority: "high" },
         { name: "Predictive Ordering System", status: "planned", priority: "high" },
