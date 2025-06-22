@@ -23,15 +23,24 @@ import { apiManager, sanitizeInput, logApiUsage } from './api-manager';
 const weatherCache = new Map<string, { data: WeatherData; timestamp: number }>();
 
 export async function getWeatherData(location: string = "New York"): Promise<WeatherData> {
+  // Sanitize input
+  const sanitizedLocation = sanitizeInput(location);
+  
   // Check cache first
-  const cacheKey = location.toLowerCase();
+  const cacheKey = sanitizedLocation.toLowerCase();
+  const config = apiManager.getConfig('weather');
   const cached = weatherCache.get(cacheKey);
-  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+  if (cached && Date.now() - cached.timestamp < config.cacheTTL) {
     return cached.data;
   }
 
-  // Using OpenWeatherMap API (free tier: 1000 calls/month)
-  const apiKey = process.env.WEATHER_API_KEY;
+  // Check rate limits
+  if (!apiManager.checkRateLimit('weather')) {
+    throw new Error('API rate limit reached. Please try again later.');
+  }
+
+  // Get API key
+  const apiKey = config.key;
   
   if (!apiKey) {
     // Demo mode with realistic seasonal weather patterns
@@ -75,8 +84,11 @@ export async function getWeatherData(location: string = "New York"): Promise<Wea
   try {
     // Current weather
     const currentResponse = await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?q=${location}&appid=${apiKey}&units=imperial`
+      `https://api.openweathermap.org/data/2.5/weather?q=${sanitizedLocation}&appid=${apiKey}&units=imperial`
     );
+    
+    apiManager.recordApiCall('weather', currentResponse.ok);
+    logApiUsage('weather', 'current', currentResponse.status);
     
     if (!currentResponse.ok) {
       throw new Error(`Weather API error: ${currentResponse.status}`);
@@ -86,8 +98,11 @@ export async function getWeatherData(location: string = "New York"): Promise<Wea
     
     // 5-day forecast
     const forecastResponse = await fetch(
-      `https://api.openweathermap.org/data/2.5/forecast?q=${location}&appid=${apiKey}&units=imperial`
+      `https://api.openweathermap.org/data/2.5/forecast?q=${sanitizedLocation}&appid=${apiKey}&units=imperial`
     );
+    
+    apiManager.recordApiCall('weather', forecastResponse.ok);
+    logApiUsage('weather', 'forecast', forecastResponse.status);
     
     const forecastData = await forecastResponse.json();
     

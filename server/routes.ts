@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertInventorySessionSchema, insertInventoryItemSchema } from "@shared/schema";
 import { getWeatherData, calculateDemandForecast, generateWeatherBasedReorders } from "./weather";
+import { apiManager } from "./api-manager";
 
 interface ProductInfo {
   name?: string;
@@ -603,6 +604,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error('TTB compliance error:', error);
       res.status(500).json({ 
         message: "Compliance data lookup failed",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // API monitoring and health check endpoint
+  app.get("/api/system/status", async (req, res) => {
+    try {
+      const weatherStats = apiManager.getUsageStats('weather');
+      const weatherConfig = apiManager.getConfig('weather');
+      
+      res.json({
+        system: {
+          status: "operational",
+          timestamp: new Date().toISOString(),
+          environment: process.env.NODE_ENV || 'development'
+        },
+        apis: {
+          weather: {
+            configured: apiManager.validateApiKey('weather'),
+            maskedKey: weatherConfig.key ? apiManager.maskApiKey(weatherConfig.key) : null,
+            rateLimit: weatherConfig.rateLimit,
+            cacheTTL: weatherConfig.cacheTTL,
+            usage: weatherStats || {
+              totalCalls: 0,
+              successfulCalls: 0,
+              failedCalls: 0,
+              lastUsed: null,
+              rateLimitReached: false
+            }
+          }
+        },
+        cache: {
+          weatherEntries: 0 // Cache size tracking
+        }
+      });
+    } catch (error) {
+      res.status(500).json({
+        message: "System status check failed",
         error: error instanceof Error ? error.message : "Unknown error"
       });
     }
