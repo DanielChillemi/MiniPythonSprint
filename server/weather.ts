@@ -17,7 +17,19 @@ interface DemandForecast {
   recommendedAction: string;
 }
 
+import { apiManager, sanitizeInput, logApiUsage } from './api-manager';
+
+// Simple in-memory cache for weather data
+const weatherCache = new Map<string, { data: WeatherData; timestamp: number }>();
+
 export async function getWeatherData(location: string = "New York"): Promise<WeatherData> {
+  // Check cache first
+  const cacheKey = location.toLowerCase();
+  const cached = weatherCache.get(cacheKey);
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    return cached.data;
+  }
+
   // Using OpenWeatherMap API (free tier: 1000 calls/month)
   const apiKey = process.env.WEATHER_API_KEY;
   
@@ -48,12 +60,16 @@ export async function getWeatherData(location: string = "New York"): Promise<Wea
       condition: conditions[Math.floor(Math.random() * conditions.length)]
     }));
     
-    return {
+    const weatherData = {
       temperature: currentTemp,
       condition: currentCondition,
       humidity: Math.round(40 + Math.random() * 40),
       forecast
     };
+
+    // Cache the demo data
+    weatherCache.set(cacheKey, { data: weatherData, timestamp: Date.now() });
+    return weatherData;
   }
 
   try {
@@ -86,12 +102,16 @@ export async function getWeatherData(location: string = "New York"): Promise<Wea
         condition: item.weather[0].main
       }));
 
-    return {
+    const weatherData = {
       temperature: Math.round(currentData.main.temp),
       condition: currentData.weather[0].main,
       humidity: currentData.main.humidity,
       forecast: dailyForecast
     };
+
+    // Cache successful API response
+    weatherCache.set(cacheKey, { data: weatherData, timestamp: Date.now() });
+    return weatherData;
     
   } catch (error) {
     console.error('Weather API error:', error);
