@@ -22,6 +22,29 @@ import { apiManager, sanitizeInput, logApiUsage } from './api-manager';
 // Simple in-memory cache for weather data
 const weatherCache = new Map<string, { data: WeatherData; timestamp: number }>();
 
+// Calculate heat index (feels like temperature) based on temperature and humidity
+function calculateHeatIndex(tempF: number, humidity: number): number {
+  if (tempF < 80 || humidity < 40) {
+    return tempF; // Heat index formula only applies to hot, humid conditions
+  }
+  
+  const T = tempF;
+  const RH = humidity;
+  
+  // Rothfusz regression equation for heat index
+  let HI = -42.379 + 
+           2.04901523 * T + 
+           10.14333127 * RH - 
+           0.22475541 * T * RH - 
+           6.83783e-3 * T * T - 
+           5.481717e-2 * RH * RH + 
+           1.22874e-3 * T * T * RH + 
+           8.5282e-4 * T * RH * RH - 
+           1.99e-6 * T * T * RH * RH;
+           
+  return Math.round(HI);
+}
+
 export async function getWeatherData(location: string = "New York"): Promise<WeatherData> {
   // Sanitize input
   const sanitizedLocation = sanitizeInput(location);
