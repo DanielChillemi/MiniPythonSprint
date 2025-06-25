@@ -137,15 +137,36 @@ export async function getWeatherData(location: string = "New York"): Promise<Wea
 export function calculateDemandForecast(weatherData: WeatherData): DemandForecast[] {
   const forecasts: DemandForecast[] = [];
   const temp = weatherData.temperature;
+  const humidity = weatherData.humidity;
   const condition = weatherData.condition;
   
-  // Beer demand logic - current June weather (64°F) should trigger this
+  // Calculate heat index for perceived temperature
+  const heatIndex = calculateHeatIndex(temp, humidity);
+  
+  // Beer demand logic with humidity considerations
   if (temp >= 60) {
+    let weatherDescription = "";
+    let multiplier = 1.2;
+    
+    if (heatIndex >= 85) {
+      weatherDescription = `Hot and muggy conditions (${temp}°F, ${humidity}% humidity, feels like ${heatIndex}°F)`;
+      multiplier = 1.5; // Higher demand for cold drinks in oppressive heat
+    } else if (temp >= 75 && humidity >= 70) {
+      weatherDescription = `Warm and humid weather (${temp}°F, ${humidity}% humidity)`;
+      multiplier = 1.4;
+    } else if (temp >= 75) {
+      weatherDescription = `Pleasant warm weather (${temp}°F)`;
+      multiplier = 1.3;
+    } else {
+      weatherDescription = `Mild weather (${temp}°F)`;
+      multiplier = 1.2;
+    }
+    
     forecasts.push({
       productCategory: "Beer",
-      demandMultiplier: temp >= 75 ? 1.4 : 1.2,
-      reasoning: `Pleasant summer weather (${temp}°F) increases beer consumption`,
-      recommendedAction: temp >= 75 ? "Increase beer orders by 40%. Focus on light beers." : "Increase beer orders by 20%. All beer types in demand."
+      demandMultiplier: multiplier,
+      reasoning: `${weatherDescription} increases beer consumption`,
+      recommendedAction: multiplier >= 1.4 ? "Increase beer orders by 40-50%. Focus on light, refreshing beers." : "Increase beer orders by 20-30%. All beer types in demand."
     });
   } else if (temp <= 50) {
     forecasts.push({
