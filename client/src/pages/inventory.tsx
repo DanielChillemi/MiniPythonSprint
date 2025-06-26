@@ -83,14 +83,6 @@ export default function InventoryPage() {
             </div>
             <div className="flex items-center space-x-3">
               <nav className="flex items-center space-x-2">
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="bg-white/20 border-white/30 text-white hover:bg-white/30 handwritten-text"
-                >
-                  <Package2 className="w-4 h-4 mr-2" />
-                  Inventory
-                </Button>
                 <Link href="/roadmap">
                   <Button 
                     variant="outline" 
@@ -98,7 +90,7 @@ export default function InventoryPage() {
                     className="bg-white/10 border-white/20 text-white hover:bg-white/20 handwritten-text"
                   >
                     <Map className="w-4 h-4 mr-2" />
-                    Roadmap
+                    Project Roadmap
                   </Button>
                 </Link>
               </nav>
