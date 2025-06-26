@@ -82,19 +82,29 @@ export default function InventoryPage() {
               </div>
             </div>
             <div className="flex items-center space-x-3">
-              <Link href="/roadmap">
+              <nav className="flex items-center space-x-2">
                 <Button 
                   variant="outline" 
                   size="sm"
-                  className="bg-white/10 border-white/20 text-white hover:bg-white/20 handwritten-text"
+                  className="bg-white/20 border-white/30 text-white hover:bg-white/30 handwritten-text"
                 >
-                  <Map className="w-4 h-4 mr-2" />
-                  Roadmap
+                  <Package2 className="w-4 h-4 mr-2" />
+                  Inventory
                 </Button>
-              </Link>
+                <Link href="/roadmap">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="bg-white/10 border-white/20 text-white hover:bg-white/20 handwritten-text"
+                  >
+                    <Map className="w-4 h-4 mr-2" />
+                    Roadmap
+                  </Button>
+                </Link>
+              </nav>
               <div className="flex items-center space-x-2 bg-green-500/20 px-3 py-1 rounded-full">
                 <BadgeCheck className="text-green-300" />
-                <span className="text-sm handwritten-text">Live Demo</span>
+                <span className="text-sm handwritten-text">Live Weather Data</span>
               </div>
             </div>
           </div>

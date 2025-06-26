@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Cloud, Sun, CloudRain, Snowflake, TrendingUp, AlertTriangle, RefreshCw } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Cloud, Sun, CloudRain, Snowflake, TrendingUp, AlertTriangle, RefreshCw, MapPin } from "lucide-react";
 
 interface WeatherData {
   temperature: number;
@@ -50,11 +51,12 @@ export default function WeatherDashboard() {
   const [weatherData, setWeatherData] = useState<WeatherForecastResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState("New York");
 
-  const fetchWeatherForecast = async () => {
+  const fetchWeatherForecast = async (location: string = selectedLocation) => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/weather-forecast/New York');
+      const response = await fetch(`/api/weather-forecast/${encodeURIComponent(location)}`);
       if (response.ok) {
         const data = await response.json();
         setWeatherData(data);
@@ -69,7 +71,7 @@ export default function WeatherDashboard() {
 
   useEffect(() => {
     fetchWeatherForecast();
-  }, []);
+  }, [selectedLocation]);
 
   const getWeatherIcon = (condition: string) => {
     switch (condition.toLowerCase()) {
@@ -125,16 +127,32 @@ export default function WeatherDashboard() {
               {getWeatherIcon(weatherData.weather.condition)}
               <span className="ml-3">Weather Intelligence</span>
             </CardTitle>
-            <Button
-              onClick={fetchWeatherForecast}
-              disabled={isLoading}
-              size="sm"
-              variant="outline"
-              className="handwritten-text"
-            >
-              {isLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
-              Refresh
-            </Button>
+            <div className="flex items-center space-x-2">
+              <Select value={selectedLocation} onValueChange={setSelectedLocation}>
+                <SelectTrigger className="w-40 handwritten-text">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="New York">New York</SelectItem>
+                  <SelectItem value="Miami">Miami</SelectItem>
+                  <SelectItem value="Chicago">Chicago</SelectItem>
+                  <SelectItem value="Phoenix">Phoenix</SelectItem>
+                  <SelectItem value="Seattle">Seattle</SelectItem>
+                  <SelectItem value="Denver">Denver</SelectItem>
+                  <SelectItem value="Las Vegas">Las Vegas</SelectItem>
+                  <SelectItem value="Boston">Boston</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button
+                onClick={() => fetchWeatherForecast()}
+                disabled={isLoading}
+                size="sm"
+                variant="outline"
+                className="handwritten-text"
+              >
+                {isLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
