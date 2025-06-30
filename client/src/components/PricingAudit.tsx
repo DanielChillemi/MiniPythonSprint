@@ -131,6 +131,24 @@ export default function PricingAudit() {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
+          {/* Pricing Explanation */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+            <h4 className="font-bold handwritten-text text-blue-800 mb-2">Understanding Your Pricing Data:</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm handwritten-text">
+              <div>
+                <span className="font-semibold text-green-700">Cost Price:</span> What you pay suppliers
+                <p className="text-gray-600">Your wholesale cost per unit</p>
+              </div>
+              <div>
+                <span className="font-semibold text-blue-700">Sell Price:</span> What customers pay you
+                <p className="text-gray-600">Your retail price per unit</p>
+              </div>
+            </div>
+            <p className="text-xs text-blue-600 mt-2 handwritten-text">
+              <strong>Healthy margins:</strong> Sell price should be higher than cost price (typically 15-40% profit margin)
+            </p>
+          </div>
+
           {/* Summary */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center p-3 bg-red-50 rounded-lg">

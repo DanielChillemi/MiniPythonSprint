@@ -348,6 +348,11 @@ export default function CostAnalysisDashboard() {
         </CardContent>
       </Card>
 
+      {/* Pricing Data Audit */}
+      <div className="grid grid-cols-1 gap-6">
+        <PricingAudit />
+      </div>
+
       {lastUpdated && (
         <p className="text-sm text-gray-500 handwritten-text text-center">
           Last updated: {lastUpdated.toLocaleTimeString()}

@@ -654,27 +654,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const allProducts = await storage.getAllProducts();
       const fixes = [];
       
+      // Define realistic pricing corrections based on typical beverage industry margins
+      const pricingFixes: Record<string, { unitPrice: number; costPrice: number }> = {
+        "BEER-BUD-24": { unitPrice: 45.99, costPrice: 32.50 }, // Case pricing
+        "BEER-COR-24": { unitPrice: 52.99, costPrice: 38.25 }, // Premium case
+        "BEER-HEI-6": { unitPrice: 13.99, costPrice: 9.75 },   // 6-pack
+        "BEER-MIL-24": { unitPrice: 42.99, costPrice: 29.50 }, // Case pricing
+        "WINE-CAB-750": { unitPrice: 28.24, costPrice: 19.75 }, // Keep existing good pricing
+        "SPIRIT-GREY-750": { unitPrice: 32.99, costPrice: 22.50 }, // Premium spirit
+      };
+      
       for (const product of allProducts) {
         const unitPrice = parseFloat(product.unitPrice);
         const costPrice = product.costPrice ? parseFloat(product.costPrice) : null;
         
-        // If cost price is higher than selling price, fix it
-        if (costPrice && costPrice >= unitPrice) {
-          const newCostPrice = unitPrice * 0.65; // Set to 65% of selling price
+        // Check if we have a specific fix for this SKU
+        if (pricingFixes[product.sku]) {
+          const fix = pricingFixes[product.sku];
           fixes.push({
             id: product.id,
+            sku: product.sku,
             name: product.name,
-            oldCost: costPrice,
-            newCost: newCostPrice,
-            unitPrice: unitPrice
+            oldUnitPrice: unitPrice,
+            oldCostPrice: costPrice,
+            newUnitPrice: fix.unitPrice,
+            newCostPrice: fix.costPrice,
+            action: "realistic_pricing"
+          });
+        } else if (costPrice && costPrice >= unitPrice) {
+          // General fix for remaining issues
+          const newCostPrice = unitPrice * 0.65;
+          fixes.push({
+            id: product.id,
+            sku: product.sku,
+            name: product.name,
+            oldUnitPrice: unitPrice,
+            oldCostPrice: costPrice,
+            newUnitPrice: unitPrice,
+            newCostPrice: newCostPrice,
+            action: "cost_reduction"
           });
         }
       }
       
       res.json({
-        message: `Found ${fixes.length} pricing issues that would be fixed`,
+        message: `Found ${fixes.length} pricing issues`,
         fixes,
-        note: "This is a preview. Actual database updates would require additional confirmation."
+        note: "Realistic beverage industry pricing corrections identified"
       });
       
     } catch (error) {
