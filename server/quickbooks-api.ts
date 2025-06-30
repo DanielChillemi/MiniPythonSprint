@@ -146,8 +146,9 @@ class QuickBooksAPI {
 
       const tokens = await response.json();
       const currentRealmId = this.tokens?.realmId || '';
-      this.tokens = { ...tokens, realmId: currentRealmId };
-      return this.tokens;
+      const newTokens: QuickBooksTokens = { ...tokens, realmId: currentRealmId };
+      this.tokens = newTokens;
+      return newTokens;
     } catch (error) {
       console.error('QuickBooks token refresh error:', error);
       throw error;

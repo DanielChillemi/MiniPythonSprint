@@ -1207,6 +1207,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // QuickBooks Integration Routes
+  
+  // Initiate QuickBooks OAuth
+  app.get("/api/quickbooks/auth", initiateQuickBooksAuth);
+  
+  // Handle OAuth callback
+  app.get("/api/quickbooks/callback", handleQuickBooksCallback);
+  
+  // Get QuickBooks connection status
+  app.get("/api/quickbooks/status", getQuickBooksStatus);
+  
+  // Sync transactions to QuickBooks
+  app.post("/api/quickbooks/sync", syncToQuickBooks);
+
   const httpServer = createServer(app);
   return httpServer;
 }

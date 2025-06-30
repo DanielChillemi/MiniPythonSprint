@@ -94,17 +94,32 @@ export default function QuickBooksIntegration() {
   const connectToQuickBooks = async () => {
     setIsConnecting(true);
     try {
-      // Simulate QuickBooks OAuth flow
-      setTimeout(() => {
-        setQbStatus({
-          connected: true,
-          lastSync: new Date().toISOString(),
-          companyName: "Sample Bar & Grill LLC",
-          totalSynced: 245,
-          pendingTransactions: 2
-        });
-        setIsConnecting(false);
-      }, 2000);
+      // Get the OAuth authorization URL from our backend
+      const response = await fetch('/api/quickbooks/auth');
+      const data = await response.json();
+      
+      if (data.authUrl) {
+        // Open QuickBooks OAuth in new window
+        window.open(data.authUrl, 'quickbooks-oauth', 'width=600,height=700');
+        
+        // Listen for successful connection
+        const checkConnection = setInterval(async () => {
+          const statusResponse = await fetch('/api/quickbooks/status');
+          const statusData = await statusResponse.json();
+          
+          if (statusData.connected) {
+            clearInterval(checkConnection);
+            setQbStatus(statusData);
+            setIsConnecting(false);
+          }
+        }, 2000);
+        
+        // Stop checking after 5 minutes
+        setTimeout(() => {
+          clearInterval(checkConnection);
+          setIsConnecting(false);
+        }, 300000);
+      }
     } catch (error) {
       console.error('QuickBooks connection error:', error);
       setIsConnecting(false);
@@ -114,21 +129,37 @@ export default function QuickBooksIntegration() {
   const syncTransactions = async () => {
     setIsSyncing(true);
     try {
-      // Simulate sync process
-      setTimeout(() => {
+      const pendingIds = transactions.filter(t => t.status === "pending").map(t => t.id);
+      
+      const response = await fetch('/api/quickbooks/sync', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ transactionIds: pendingIds }),
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        
+        // Update transaction statuses
         setTransactions(prev => prev.map(t => 
-          t.status === "pending" ? { ...t, status: "synced" } : t
+          pendingIds.includes(t.id) ? { ...t, status: "synced" } : t
         ));
+        
+        // Update QuickBooks status
         setQbStatus(prev => ({
           ...prev,
           lastSync: new Date().toISOString(),
-          totalSynced: prev.totalSynced + 2,
-          pendingTransactions: 0
+          totalSynced: prev.totalSynced + result.synced,
+          pendingTransactions: Math.max(0, prev.pendingTransactions - result.synced)
         }));
-        setIsSyncing(false);
-      }, 3000);
+      } else {
+        console.error('Sync failed:', await response.text());
+      }
     } catch (error) {
       console.error('Sync error:', error);
+    } finally {
       setIsSyncing(false);
     }
   };
