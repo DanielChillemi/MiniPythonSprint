@@ -8,6 +8,7 @@ import { Link } from "wouter";
 import ProductLookup from "@/components/ProductLookup";
 import InventorySession from "@/components/InventorySession";
 import WeatherDashboard from "@/components/WeatherDashboard";
+import CostAnalysisDashboard from "@/components/CostAnalysisDashboard";
 
 import { useInventorySession } from "@/hooks/useInventorySession";
 import { Product } from "@shared/schema";

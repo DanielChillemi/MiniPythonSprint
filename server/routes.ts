@@ -648,6 +648,164 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Cost Analysis Dashboard endpoint
+  app.get("/api/cost-analysis", async (req, res) => {
+    try {
+      const timeframe = req.query.timeframe || "30d";
+      
+      // Get all products for analysis
+      const allProducts = await storage.getAllProducts();
+      
+      // Calculate metrics based on current inventory and product data
+      let totalInventoryValue = 0;
+      let totalCost = 0;
+      let totalRevenue = 0;
+      
+      const productAnalysis = allProducts.map(product => {
+        const currentStock = parseFloat(product.lastCountQuantity || "0");
+        const unitPrice = parseFloat(product.unitPrice);
+        const costPrice = parseFloat(product.costPrice || (unitPrice * 0.6).toString()); // Use cost price or 60% assumption
+        const totalProductCost = currentStock * costPrice;
+        const totalProductValue = currentStock * unitPrice;
+        const margin = unitPrice > 0 ? ((unitPrice - costPrice) / unitPrice) * 100 : 0;
+        
+        totalInventoryValue += totalProductValue;
+        totalCost += totalProductCost;
+        totalRevenue += totalProductValue;
+        
+        return {
+          id: product.id,
+          name: product.name,
+          currentStock,
+          unitCost: costPrice,
+          unitPrice,
+          totalCost: totalProductCost,
+          totalValue: totalProductValue,
+          margin,
+          reorderPoint: product.parLevel || 0
+        };
+      });
+      
+      const grossProfitMargin = totalRevenue > 0 ? ((totalRevenue - totalCost) / totalRevenue) * 100 : 0;
+      
+      // Top performing products (highest margin)
+      const topPerformingProducts = productAnalysis
+        .sort((a, b) => b.margin - a.margin)
+        .slice(0, 5)
+        .map(p => ({
+          id: p.id,
+          name: p.name,
+          margin: p.margin,
+          revenue: p.totalValue,
+          cost: p.totalCost,
+          category: getCategoryName(p)
+        }));
+      
+      // Low margin products (under 30% margin)
+      const lowMarginProducts = productAnalysis
+        .filter(p => p.margin < 30)
+        .sort((a, b) => a.margin - b.margin)
+        .slice(0, 5)
+        .map(p => ({
+          id: p.id,
+          name: p.name,
+          margin: p.margin,
+          currentStock: p.currentStock,
+          reorderPoint: p.reorderPoint
+        }));
+      
+      // Category performance summary
+      const getCategoryName = (product: any) => {
+        if (product.name.toLowerCase().includes('beer') || 
+            product.name.toLowerCase().includes('ale') ||
+            product.name.toLowerCase().includes('lager') ||
+            product.name.toLowerCase().includes('budweiser') ||
+            product.name.toLowerCase().includes('heineken') ||
+            product.name.toLowerCase().includes('miller') ||
+            product.name.toLowerCase().includes('stella') ||
+            product.name.toLowerCase().includes('corona')) {
+          return "Beer";
+        } else if (product.name.toLowerCase().includes('wine') ||
+                   product.name.toLowerCase().includes('cabernet') ||
+                   product.name.toLowerCase().includes('chardonnay') ||
+                   product.name.toLowerCase().includes('pinot')) {
+          return "Wine";
+        } else if (product.name.toLowerCase().includes('whiskey') ||
+                   product.name.toLowerCase().includes('vodka') ||
+                   product.name.toLowerCase().includes('rum') ||
+                   product.name.toLowerCase().includes('gin') ||
+                   product.name.toLowerCase().includes('tequila') ||
+                   product.name.toLowerCase().includes('bourbon')) {
+          return "Spirits";
+        }
+        return "Other";
+      };
+
+      const categoryMap = new Map();
+      productAnalysis.forEach(product => {
+        const category = getCategoryName(product);
+        if (!categoryMap.has(category)) {
+          categoryMap.set(category, {
+            category,
+            totalValue: 0,
+            totalCost: 0,
+            itemCount: 0
+          });
+        }
+        const cat = categoryMap.get(category);
+        cat.totalValue += product.totalValue;
+        cat.totalCost += product.totalCost;
+        cat.itemCount += 1;
+      });
+      
+      const categorySummary = Array.from(categoryMap.values()).map(cat => ({
+        ...cat,
+        margin: cat.totalValue > 0 ? ((cat.totalValue - cat.totalCost) / cat.totalValue) * 100 : 0
+      }));
+      
+      // Reorder alerts (products below reorder point)
+      const reorderAlerts = productAnalysis
+        .filter(p => p.currentStock <= p.reorderPoint && p.reorderPoint > 0)
+        .map(p => {
+          const stockRatio = p.currentStock / p.reorderPoint;
+          let urgency: "critical" | "high" | "medium" = "medium";
+          if (stockRatio <= 0.2) urgency = "critical";
+          else if (stockRatio <= 0.5) urgency = "high";
+          
+          return {
+            id: p.id,
+            name: p.name,
+            currentStock: p.currentStock,
+            reorderPoint: p.reorderPoint,
+            urgency,
+            estimatedDaysLeft: Math.max(1, Math.floor(p.currentStock / 2)) // Simple estimation
+          };
+        })
+        .sort((a, b) => {
+          const urgencyOrder = { critical: 3, high: 2, medium: 1 };
+          return urgencyOrder[b.urgency] - urgencyOrder[a.urgency];
+        });
+      
+      res.json({
+        totalInventoryValue: Math.round(totalInventoryValue),
+        totalCost: Math.round(totalCost),
+        totalRevenue: Math.round(totalRevenue),
+        grossProfitMargin,
+        topPerformingProducts,
+        lowMarginProducts,
+        categorySummary,
+        reorderAlerts
+      });
+      
+    } catch (error) {
+      console.error('Cost analysis error:', error);
+      res.status(500).json({
+        message: "Cost analysis failed",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
   // Weather-based demand forecasting endpoint
   app.get("/api/weather-forecast/:location?", async (req, res) => {
     try {
