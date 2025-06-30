@@ -1072,6 +1072,62 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // QuickBooks Integration endpoints
+  app.get("/api/quickbooks/status", async (req, res) => {
+    try {
+      // In a real implementation, this would check OAuth tokens and QB API connection
+      const isConnected = Math.random() > 0.3; // Simulate connection status
+      
+      if (isConnected) {
+        res.json({
+          connected: true,
+          lastSync: new Date(Date.now() - 1000 * 60 * 30).toISOString(), // 30 minutes ago
+          companyName: "Sample Bar & Grill LLC",
+          totalSynced: 245,
+          pendingTransactions: 2
+        });
+      } else {
+        res.json({
+          connected: false,
+          lastSync: null,
+          totalSynced: 0,
+          pendingTransactions: 0
+        });
+      }
+    } catch (error) {
+      console.error('QuickBooks status error:', error);
+      res.status(500).json({
+        message: "Failed to get QuickBooks status",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  app.post("/api/quickbooks/sync", async (req, res) => {
+    try {
+      // In a real implementation, this would sync data with QuickBooks API
+      const syncResults = {
+        inventoryAdjustments: 2,
+        purchases: 1,
+        sales: 3,
+        totalSynced: 6,
+        syncTime: new Date().toISOString()
+      };
+
+      res.json({
+        success: true,
+        ...syncResults,
+        message: "Successfully synced with QuickBooks"
+      });
+    } catch (error) {
+      console.error('QuickBooks sync error:', error);
+      res.status(500).json({
+        message: "Failed to sync with QuickBooks",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

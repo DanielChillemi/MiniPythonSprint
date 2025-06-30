@@ -11,6 +11,7 @@ import InventorySession from "@/components/InventorySession";
 import WeatherDashboard from "@/components/WeatherDashboard";
 import CostAnalysisDashboard from "@/components/CostAnalysisDashboard";
 import ProductPricingCard from "@/components/ProductPricingCard";
+import QuickBooksIntegration from "@/components/QuickBooksIntegration";
 
 import { useInventorySession } from "@/hooks/useInventorySession";
 import { Product } from "@shared/schema";
@@ -267,6 +268,9 @@ export default function InventoryPage() {
                 </TabsContent>
                 <TabsContent value="cost" className="space-y-6">
                   <CostAnalysisDashboard />
+                  
+                  {/* QuickBooks Integration */}
+                  <QuickBooksIntegration />
                   
                   {/* Pricing Understanding Examples */}
                   <Card className="notepad-card">

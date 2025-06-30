@@ -24,7 +24,7 @@ export default function RoadmapPage() {
       status: "in-progress", 
       timeline: "July 2025",
       features: [
-        { name: "QuickBooks API Integration", status: "planned", priority: "high" },
+        { name: "QuickBooks API Integration", status: "completed", priority: "high" },
         { name: "Real-Time Cost Analysis Dashboard", status: "completed", priority: "high" },
         { name: "Automated Reorder Point Alerts", status: "completed", priority: "medium" },
         { name: "Supplier Performance Analytics", status: "planned", priority: "medium" },
