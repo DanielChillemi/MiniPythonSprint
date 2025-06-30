@@ -133,20 +133,27 @@ export default function PricingAudit() {
         <div className="space-y-4">
           {/* Pricing Explanation */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-            <h4 className="font-bold handwritten-text text-blue-800 mb-2">Understanding Your Pricing Data:</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm handwritten-text">
+            <h4 className="font-bold handwritten-text text-blue-800 mb-2">Understanding Case vs Individual Unit Pricing:</h4>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm handwritten-text">
               <div>
                 <span className="font-semibold text-green-700">Cost Price:</span> What you pay suppliers
-                <p className="text-gray-600">Your wholesale cost per unit</p>
+                <p className="text-gray-600">Your wholesale cost per case/unit</p>
               </div>
               <div>
                 <span className="font-semibold text-blue-700">Sell Price:</span> What customers pay you
-                <p className="text-gray-600">Your retail price per unit</p>
+                <p className="text-gray-600">Your retail price per case/unit</p>
+              </div>
+              <div>
+                <span className="font-semibold text-purple-700">Units per Case:</span> Items in package
+                <p className="text-gray-600">24-pack = 24 cans, 6-pack = 6 cans</p>
               </div>
             </div>
-            <p className="text-xs text-blue-600 mt-2 handwritten-text">
-              <strong>Healthy margins:</strong> Sell price should be higher than cost price (typically 15-40% profit margin)
-            </p>
+            <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded">
+              <p className="text-xs text-yellow-800 handwritten-text">
+                <strong>Example:</strong> Budweiser 24-pack costs $32.50, sells for $45.99 = 29.3% margin<br/>
+                <strong>Per can:</strong> $1.35 cost, $1.92 selling price (realistic beverage pricing)
+              </p>
+            </div>
           </div>
 
           {/* Summary */}

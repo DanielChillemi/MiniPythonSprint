@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -10,6 +10,7 @@ import ProductLookup from "@/components/ProductLookup";
 import InventorySession from "@/components/InventorySession";
 import WeatherDashboard from "@/components/WeatherDashboard";
 import CostAnalysisDashboard from "@/components/CostAnalysisDashboard";
+import ProductPricingCard from "@/components/ProductPricingCard";
 
 import { useInventorySession } from "@/hooks/useInventorySession";
 import { Product } from "@shared/schema";
@@ -266,6 +267,34 @@ export default function InventoryPage() {
                 </TabsContent>
                 <TabsContent value="cost" className="space-y-6">
                   <CostAnalysisDashboard />
+                  
+                  {/* Pricing Understanding Examples */}
+                  <Card className="notepad-card">
+                    <CardHeader>
+                      <CardTitle className="handwritten-text text-purple-800">
+                        📦 Understanding Case vs Unit Pricing
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="bg-blue-50 p-4 rounded-lg">
+                        <h4 className="font-bold handwritten-text text-blue-800 mb-3">Key Concepts:</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                          <div className="bg-white p-3 rounded border">
+                            <span className="font-semibold text-green-700 handwritten-text">Case Pricing:</span>
+                            <p className="text-gray-600 handwritten-text">24-pack Budweiser costs $32.50, sells for $45.99</p>
+                          </div>
+                          <div className="bg-white p-3 rounded border">
+                            <span className="font-semibold text-blue-700 handwritten-text">Per Unit:</span>
+                            <p className="text-gray-600 handwritten-text">Each can costs $1.35, sells for $1.92</p>
+                          </div>
+                          <div className="bg-white p-3 rounded border">
+                            <span className="font-semibold text-purple-700 handwritten-text">Margin:</span>
+                            <p className="text-gray-600 handwritten-text">29.3% profit on each case sold</p>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </TabsContent>
               </Tabs>
             </div>

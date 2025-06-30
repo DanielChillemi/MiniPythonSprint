@@ -754,12 +754,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const productAnalysis = allProducts.map(product => {
         const currentStock = parseFloat(product.lastCountQuantity || "25"); // Default stock for demo
-        const unitPrice = parseFloat(product.unitPrice);
+        const unitPrice = parseFloat(product.unitPrice); // Price per case/package
+        const unitsPerCase = product.unitsPerCase || 1; // Units in each package
+        
         // Ensure cost price is logical (never higher than unit price)
         let costPrice = product.costPrice ? parseFloat(product.costPrice) : (unitPrice * 0.65);
         if (costPrice >= unitPrice) {
           costPrice = unitPrice * 0.65; // Override illogical cost data with 65% assumption
         }
+        
+        // Calculate totals based on number of cases/packages in stock
         const totalProductCost = currentStock * costPrice;
         const totalProductValue = currentStock * unitPrice;
         const margin = unitPrice > 0 ? ((unitPrice - costPrice) / unitPrice) * 100 : 0;
