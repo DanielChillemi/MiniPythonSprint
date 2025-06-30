@@ -1128,6 +1128,79 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Supplier Analytics endpoint
+  app.get("/api/supplier-analytics", async (req, res) => {
+    try {
+      const timeframe = req.query.timeframe || "30d";
+      
+      // Mock supplier performance data for demonstration
+      const suppliers = [
+        {
+          id: 1,
+          name: "Premium Beverage Distributors",
+          category: "Beer & Wine",
+          performanceScore: 94,
+          deliveryReliability: 96,
+          costTrend: "stable",
+          costChange: 0.5,
+          averageDeliveryDays: 2,
+          totalOrders: 24,
+          onTimeDeliveries: 23,
+          qualityScore: 92,
+          lastDelivery: "2025-06-29",
+          activeProducts: 8
+        },
+        {
+          id: 2,
+          name: "Metro Liquor Supply Co.",
+          category: "Spirits",
+          performanceScore: 87,
+          deliveryReliability: 89,
+          costTrend: "up",
+          costChange: 3.2,
+          averageDeliveryDays: 3,
+          totalOrders: 18,
+          onTimeDeliveries: 16,
+          qualityScore: 85,
+          lastDelivery: "2025-06-28",
+          activeProducts: 5
+        },
+        {
+          id: 3,
+          name: "Regional Beer Depot",
+          category: "Beer",
+          performanceScore: 72,
+          deliveryReliability: 78,
+          costTrend: "down",
+          costChange: -1.8,
+          averageDeliveryDays: 4,
+          totalOrders: 15,
+          onTimeDeliveries: 12,
+          qualityScore: 74,
+          lastDelivery: "2025-06-26",
+          activeProducts: 6
+        }
+      ];
+
+      res.json({
+        suppliers,
+        summary: {
+          totalSuppliers: suppliers.length,
+          averagePerformance: suppliers.reduce((sum, s) => sum + s.performanceScore, 0) / suppliers.length,
+          averageReliability: suppliers.reduce((sum, s) => sum + s.deliveryReliability, 0) / suppliers.length,
+          timeframe: timeframe
+        }
+      });
+      
+    } catch (error) {
+      console.error('Supplier analytics error:', error);
+      res.status(500).json({
+        message: "Failed to fetch supplier analytics",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

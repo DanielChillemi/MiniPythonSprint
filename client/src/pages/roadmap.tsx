@@ -27,7 +27,7 @@ export default function RoadmapPage() {
         { name: "QuickBooks API Integration", status: "completed", priority: "high" },
         { name: "Real-Time Cost Analysis Dashboard", status: "completed", priority: "high" },
         { name: "Automated Reorder Point Alerts", status: "completed", priority: "medium" },
-        { name: "Supplier Performance Analytics", status: "planned", priority: "medium" },
+        { name: "Supplier Performance Analytics", status: "completed", priority: "medium" },
         { name: "Profit Margin Tracking", status: "completed", priority: "high" },
         { name: "Tax Compliance Reporting", status: "planned", priority: "medium" }
       ]
