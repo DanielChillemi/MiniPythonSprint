@@ -129,7 +129,8 @@ export default function WeatherDashboard() {
             </CardTitle>
             <div className="flex items-center space-x-2">
               <Select value={selectedLocation} onValueChange={setSelectedLocation}>
-                <SelectTrigger className="w-40 handwritten-text">
+                <SelectTrigger className="w-48 handwritten-text bg-blue-50 border-blue-200">
+                  <MapPin className="w-4 h-4 mr-2 text-blue-600" />
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>

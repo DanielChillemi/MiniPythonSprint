@@ -253,9 +253,13 @@ export default function InventoryPage() {
             {/* Business Intelligence Dashboards */}
             <div className="space-y-6">
               <Tabs defaultValue="weather" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 handwritten-text">
-                  <TabsTrigger value="weather" className="handwritten-text">Weather Intelligence</TabsTrigger>
-                  <TabsTrigger value="cost" className="handwritten-text">Cost Analysis</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-2 handwritten-text bg-yellow-100 border-2 border-dashed border-gray-300">
+                  <TabsTrigger value="weather" className="handwritten-text data-[state=active]:bg-blue-100 data-[state=active]:text-blue-800">
+                    🌤️ Weather Intelligence
+                  </TabsTrigger>
+                  <TabsTrigger value="cost" className="handwritten-text data-[state=active]:bg-green-100 data-[state=active]:text-green-800">
+                    💰 Cost Analysis
+                  </TabsTrigger>
                 </TabsList>
                 <TabsContent value="weather" className="space-y-6">
                   <WeatherDashboard />
