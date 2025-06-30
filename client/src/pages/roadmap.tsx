@@ -25,10 +25,10 @@ export default function RoadmapPage() {
       timeline: "July 2025",
       features: [
         { name: "QuickBooks API Integration", status: "planned", priority: "high" },
-        { name: "Real-Time Cost Analysis Dashboard", status: "planned", priority: "high" },
-        { name: "Automated Reorder Point Alerts", status: "planned", priority: "medium" },
+        { name: "Real-Time Cost Analysis Dashboard", status: "completed", priority: "high" },
+        { name: "Automated Reorder Point Alerts", status: "completed", priority: "medium" },
         { name: "Supplier Performance Analytics", status: "planned", priority: "medium" },
-        { name: "Profit Margin Tracking", status: "planned", priority: "high" },
+        { name: "Profit Margin Tracking", status: "completed", priority: "high" },
         { name: "Tax Compliance Reporting", status: "planned", priority: "medium" }
       ]
     },

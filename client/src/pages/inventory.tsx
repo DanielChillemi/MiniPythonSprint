@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { BadgeCheck, Package2, FileScan, List, FolderSync, Info, Save, CloudUpload, Hash, Eye, Loader2, Map } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link } from "wouter";
 import ProductLookup from "@/components/ProductLookup";
 import InventorySession from "@/components/InventorySession";
@@ -249,9 +250,20 @@ export default function InventoryPage() {
               </CardContent>
             </Card>
 
-            {/* Weather Intelligence Dashboard */}
+            {/* Business Intelligence Dashboards */}
             <div className="space-y-6">
-              <WeatherDashboard />
+              <Tabs defaultValue="weather" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 handwritten-text">
+                  <TabsTrigger value="weather" className="handwritten-text">Weather Intelligence</TabsTrigger>
+                  <TabsTrigger value="cost" className="handwritten-text">Cost Analysis</TabsTrigger>
+                </TabsList>
+                <TabsContent value="weather" className="space-y-6">
+                  <WeatherDashboard />
+                </TabsContent>
+                <TabsContent value="cost" className="space-y-6">
+                  <CostAnalysisDashboard />
+                </TabsContent>
+              </Tabs>
             </div>
 
             {/* MarginEdge Integration */}

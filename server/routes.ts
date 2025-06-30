@@ -656,6 +656,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get all products for analysis
       const allProducts = await storage.getAllProducts();
       
+      // Category helper function
+      const getCategoryName = (product: any) => {
+        if (product.name.toLowerCase().includes('beer') || 
+            product.name.toLowerCase().includes('ale') ||
+            product.name.toLowerCase().includes('lager') ||
+            product.name.toLowerCase().includes('budweiser') ||
+            product.name.toLowerCase().includes('heineken') ||
+            product.name.toLowerCase().includes('miller') ||
+            product.name.toLowerCase().includes('stella') ||
+            product.name.toLowerCase().includes('corona')) {
+          return "Beer";
+        } else if (product.name.toLowerCase().includes('wine') ||
+                   product.name.toLowerCase().includes('cabernet') ||
+                   product.name.toLowerCase().includes('chardonnay') ||
+                   product.name.toLowerCase().includes('pinot')) {
+          return "Wine";
+        } else if (product.name.toLowerCase().includes('whiskey') ||
+                   product.name.toLowerCase().includes('vodka') ||
+                   product.name.toLowerCase().includes('rum') ||
+                   product.name.toLowerCase().includes('gin') ||
+                   product.name.toLowerCase().includes('tequila') ||
+                   product.name.toLowerCase().includes('bourbon')) {
+          return "Spirits";
+        }
+        return "Other";
+      };
+      
       // Calculate metrics based on current inventory and product data
       let totalInventoryValue = 0;
       let totalCost = 0;
@@ -715,32 +742,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }));
       
       // Category performance summary
-      const getCategoryName = (product: any) => {
-        if (product.name.toLowerCase().includes('beer') || 
-            product.name.toLowerCase().includes('ale') ||
-            product.name.toLowerCase().includes('lager') ||
-            product.name.toLowerCase().includes('budweiser') ||
-            product.name.toLowerCase().includes('heineken') ||
-            product.name.toLowerCase().includes('miller') ||
-            product.name.toLowerCase().includes('stella') ||
-            product.name.toLowerCase().includes('corona')) {
-          return "Beer";
-        } else if (product.name.toLowerCase().includes('wine') ||
-                   product.name.toLowerCase().includes('cabernet') ||
-                   product.name.toLowerCase().includes('chardonnay') ||
-                   product.name.toLowerCase().includes('pinot')) {
-          return "Wine";
-        } else if (product.name.toLowerCase().includes('whiskey') ||
-                   product.name.toLowerCase().includes('vodka') ||
-                   product.name.toLowerCase().includes('rum') ||
-                   product.name.toLowerCase().includes('gin') ||
-                   product.name.toLowerCase().includes('tequila') ||
-                   product.name.toLowerCase().includes('bourbon')) {
-          return "Spirits";
-        }
-        return "Other";
-      };
-
       const categoryMap = new Map();
       productAnalysis.forEach(product => {
         const category = getCategoryName(product);
