@@ -40,6 +40,7 @@ export const products = pgTable("products", {
   minLevel: integer("min_level"),
   maxLevel: integer("max_level"),
   unitOfMeasure: text("unit_of_measure").default("each"), // "each", "case", "bottle", "oz"
+  unitsPerCase: integer("units_per_case").default(1), // How many individual units in this package
   barcode: text("barcode"),
   individualBarcode: text("individual_barcode"),
   sixPackBarcode: text("six_pack_barcode"),
