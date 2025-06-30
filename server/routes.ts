@@ -4,6 +4,12 @@ import { storage } from "./storage";
 import { insertInventorySessionSchema, insertInventoryItemSchema } from "@shared/schema";
 import { getWeatherData, calculateDemandForecast, generateWeatherBasedReorders } from "./weather";
 import { apiManager } from "./api-manager";
+import { 
+  initiateQuickBooksAuth, 
+  handleQuickBooksCallback, 
+  getQuickBooksStatus, 
+  syncToQuickBooks 
+} from "./quickbooks-api";
 
 interface ProductInfo {
   name?: string;
