@@ -15,6 +15,7 @@ import {
   Target,
   Package
 } from "lucide-react";
+import PricingAudit from "./PricingAudit";
 
 interface CostAnalysisData {
   totalInventoryValue: number;

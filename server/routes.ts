@@ -648,6 +648,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Database validation and pricing fix endpoint
+  app.post("/api/fix-pricing", async (req, res) => {
+    try {
+      const allProducts = await storage.getAllProducts();
+      const fixes = [];
+      
+      for (const product of allProducts) {
+        const unitPrice = parseFloat(product.unitPrice);
+        const costPrice = product.costPrice ? parseFloat(product.costPrice) : null;
+        
+        // If cost price is higher than selling price, fix it
+        if (costPrice && costPrice >= unitPrice) {
+          const newCostPrice = unitPrice * 0.65; // Set to 65% of selling price
+          fixes.push({
+            id: product.id,
+            name: product.name,
+            oldCost: costPrice,
+            newCost: newCostPrice,
+            unitPrice: unitPrice
+          });
+        }
+      }
+      
+      res.json({
+        message: `Found ${fixes.length} pricing issues that would be fixed`,
+        fixes,
+        note: "This is a preview. Actual database updates would require additional confirmation."
+      });
+      
+    } catch (error) {
+      console.error('Pricing validation error:', error);
+      res.status(500).json({
+        message: "Pricing validation failed",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
   // Cost Analysis Dashboard endpoint
   app.get("/api/cost-analysis", async (req, res) => {
     try {
