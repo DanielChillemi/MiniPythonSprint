@@ -10,19 +10,60 @@ interface ProductLookupProps {
   onProductFound: (product: Product) => void;
 }
 
+// Pure data-logic function: searches for product without side effects
+const searchForProduct = async (query: string): Promise<Product | null> => {
+  if (!query.trim()) {
+    return null;
+  }
+
+  try {
+    const response = await fetch(`/api/products/search/${encodeURIComponent(query)}`);
+    if (response.ok) {
+      const productData = await response.json();
+      return productData.id ? productData : null;
+    }
+    return null;
+  } catch (error) {
+    console.error('Product search error:', error);
+    return null;
+  }
+};
+
+// Pure UI management function: updates interface based on product state
+const updateProductUI = (
+  product: Product | null, 
+  toast: any, 
+  onProductFound: (product: Product) => void,
+  clearSearch: () => void
+) => {
+  if (product) {
+    // Product found - update UI and notify parent
+    onProductFound(product);
+    clearSearch();
+    toast({
+      title: "Product Found",
+      description: `${product.brand || 'Product'} ${product.name} loaded successfully`,
+    });
+  } else {
+    // Product not found - show error message
+    toast({
+      title: "Product Not Found",
+      description: "Try searching by brand name (e.g., 'Corona', 'Jack Daniels')",
+      variant: "destructive",
+    });
+  }
+};
+
 export default function ProductLookup({ onProductFound }: ProductLookupProps) {
   const [productId, setProductId] = useState("");
   const [isScanning, setIsScanning] = useState(false);
   const [scanningStatus, setScanningStatus] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { toast } = useToast();
 
-  const { data: product, isLoading, refetch } = useQuery<Product>({
-    queryKey: [`/api/products/search/${productId}`],
-    enabled: false,
-  });
-
+  // Controller function: orchestrates search and UI update
   const handleLookup = async () => {
     if (!productId.trim()) {
       toast({
@@ -33,25 +74,21 @@ export default function ProductLookup({ onProductFound }: ProductLookupProps) {
       return;
     }
 
+    setIsSearching(true);
+    
     try {
-      const result = await refetch();
-      if (result.data) {
-        const productData = result.data as any;
-        if (productData.id) {
-          onProductFound(productData);
-          setProductId(""); // Clear search after successful find
-          toast({
-            title: "Product Found",
-            description: `${productData.brand || 'Product'} ${productData.name} loaded successfully`,
-          });
-        }
-      }
+      const foundProduct = await searchForProduct(productId);
+      updateProductUI(
+        foundProduct, 
+        toast, 
+        onProductFound, 
+        () => setProductId("")
+      );
     } catch (error) {
-      toast({
-        title: "Product Not Found",
-        description: "Try searching by brand name (e.g., 'Corona', 'Jack Daniels')",
-        variant: "destructive",
-      });
+      console.error('Search error:', error);
+      updateProductUI(null, toast, onProductFound, () => {});
+    } finally {
+      setIsSearching(false);
     }
   };
 
@@ -181,11 +218,11 @@ export default function ProductLookup({ onProductFound }: ProductLookupProps) {
           onChange={(e) => setProductId(e.target.value)}
           onKeyPress={handleKeyPress}
           className="flex-1 font-patrick-hand text-lg border-2 border-yellow-300 bg-yellow-50 placeholder:text-gray-500"
-          disabled={isLoading}
+          disabled={isSearching}
         />
         <Button 
           onClick={handleLookup}
-          disabled={isLoading || !productId.trim()}
+          disabled={isSearching || !productId.trim()}
           className="bg-yellow-200 border-2 border-yellow-400 hover:bg-yellow-300 text-gray-800"
         >
           <Search className="w-4 h-4" />
