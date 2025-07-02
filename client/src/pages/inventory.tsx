@@ -82,8 +82,8 @@ export default function InventoryPage() {
                 <Package2 className="text-3xl" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold handwritten-text text-white">AInventory</h1>
-                <p className="text-blue-100 handwritten-text">AKA "Booze Counter 9000" • AI-Powered Beverage Management</p>
+                <h1 className="text-2xl font-bold handwritten-text text-white">Booze Counter 9000</h1>
+                <p className="text-blue-100 handwritten-text">AI-Powered Beverage Inventory Management</p>
               </div>
             </div>
             <div className="flex items-center space-x-3">
