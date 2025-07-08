@@ -3,27 +3,69 @@
 /* Import marker fonts */
 @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Shadows+Into+Light&family=Architects+Daughter&display=swap');
 
-/* Paper texture and effects */
+/* Authentic notebook paper texture */
 .paper-texture {
   position: relative;
   background: 
-    /* Subtle paper fibers */
+    /* Notebook ruled lines */
     repeating-linear-gradient(
-      45deg,
+      0deg,
       transparent,
-      transparent 3px,
-      hsla(45, 20%, 80%, 0.05) 3px,
-      hsla(45, 20%, 80%, 0.05) 6px
+      transparent 31px,
+      hsla(200, 60%, 50%, 0.15) 31px,
+      hsla(200, 60%, 50%, 0.15) 32px
     ),
-    /* Paper grain */
-    radial-gradient(ellipse at 30% 40%, hsla(45, 25%, 97%, 1), hsla(45, 15%, 94%, 1)),
-    /* Base color */
-    hsl(45, 25%, 96%);
+    /* Red margin line */
+    linear-gradient(
+      90deg,
+      transparent 80px,
+      hsla(0, 70%, 55%, 0.25) 80px,
+      hsla(0, 70%, 55%, 0.25) 82px,
+      transparent 82px
+    ),
+    /* Paper fibers - horizontal */
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 5px,
+      hsla(35, 30%, 75%, 0.03) 5px,
+      hsla(35, 30%, 75%, 0.03) 10px
+    ),
+    /* Paper fibers - vertical */
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 7px,
+      hsla(35, 30%, 75%, 0.02) 7px,
+      hsla(35, 30%, 75%, 0.02) 14px
+    ),
+    /* Subtle paper texture noise */
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" /><feColorMatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.03 0"/></filter><rect width="100%" height="100%" filter="url(%23noise)"/></svg>'),
+    /* Base notebook paper color */
+    linear-gradient(135deg, hsl(40, 35%, 97%) 0%, hsl(45, 30%, 95%) 100%);
   
-  /* Paper shadow */
+  /* Paper depth and shadow */
   box-shadow: 
-    inset 0 0 40px hsla(45, 20%, 60%, 0.08),
-    0 20px 40px hsla(0, 0%, 0%, 0.1);
+    inset 0 0 60px hsla(35, 25%, 60%, 0.06),
+    inset 2px 2px 5px hsla(0, 0%, 0%, 0.02),
+    0 25px 50px hsla(0, 0%, 0%, 0.08);
+  
+  /* Three-hole punch marks */
+  &::before {
+    content: '';
+    position: absolute;
+    left: 50px;
+    top: 15%;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    box-shadow: 
+      0 0 0 2px hsla(0, 0%, 0%, 0.1),
+      0 250px 0 2px hsla(0, 0%, 0%, 0.1),
+      0 500px 0 2px hsla(0, 0%, 0%, 0.1);
+    background: hsla(0, 0%, 100%, 0.8);
+    pointer-events: none;
+  }
 }
 
 /* Fresh marker typography */
@@ -262,19 +304,54 @@
   transform: scaleX(1);
 }
 
-/* Loading animations */
+/* Performance-optimized animations */
 .pulse-glow {
   animation: pulse 2s ease-in-out infinite;
+  will-change: transform, opacity;
+  transform: translateZ(0); /* Hardware acceleration */
 }
 
 @keyframes pulse {
   0%, 100% { 
     opacity: 1;
-    box-shadow: 0 0 20px hsla(280, 100%, 65%, 0.5);
+    transform: scale(1);
   }
   50% { 
-    opacity: 0.8;
-    box-shadow: 0 0 40px hsla(280, 100%, 65%, 0.8);
+    opacity: 0.85;
+    transform: scale(1.02);
+  }
+}
+
+/* Optimize glass panels for performance */
+.glass-panel {
+  will-change: transform;
+  transform: translateZ(0);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+/* Reduce paint areas */
+.future-card,
+.marker-text,
+.sketch-text {
+  contain: layout style paint;
+}
+
+/* Optimize hover states */
+.future-card:hover,
+.glass-panel:hover,
+.future-button:hover {
+  will-change: transform, box-shadow;
+}
+
+/* Disable animations for reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 

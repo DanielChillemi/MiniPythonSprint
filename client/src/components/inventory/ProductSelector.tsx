@@ -3,18 +3,19 @@
  * Single Responsibility: Handle product selection and barcode scanning
  */
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { Package, Scan, X } from "lucide-react";
 import { Product } from "@shared/schema";
 import { useLogger } from "@/hooks/useLogger";
 import ProductLookup from "@/components/ProductLookup";
+
 interface ProductSelectorProps {
   selectedProduct: Product | null;
   onProductSelected: (product: Product) => void;
   onProductCleared: () => void;
 }
 
-export default function ProductSelector({ 
+function ProductSelector({ 
   selectedProduct, 
   onProductSelected, 
   onProductCleared 
@@ -81,3 +82,5 @@ export default function ProductSelector({
     </div>
   );
 }
+
+export default React.memo(ProductSelector);

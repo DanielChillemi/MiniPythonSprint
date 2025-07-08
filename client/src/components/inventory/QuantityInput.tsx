@@ -3,7 +3,7 @@
  * Single Responsibility: Handle quantity input and validation
  */
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { Hash, Check, Package2 } from "lucide-react";
 import { Product } from "@shared/schema";
 import { useLogger } from "@/hooks/useLogger";
@@ -32,7 +32,7 @@ const quantitySchema = z.object({
     .max(10000, "Quantity seems unusually large")
 });
 
-export default function QuantityInput({ 
+function QuantityInput({ 
   selectedProduct, 
   onQuantitySubmitted, 
   disabled = false 
@@ -158,3 +158,5 @@ export default function QuantityInput({
     </div>
   );
 }
+
+export default React.memo(QuantityInput);

@@ -3,6 +3,7 @@
  * Single Responsibility: Display application header with navigation
  */
 
+import React from 'react';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { BadgeCheck, Package2, Map, Camera } from "lucide-react";
@@ -15,7 +16,7 @@ interface InventoryHeaderProps {
   sessionCount?: number;
 }
 
-export default function InventoryHeader({ 
+function InventoryHeader({ 
   isWeatherDataActive = true, 
   isVisionApiActive = false,
   sessionCount = 0
@@ -80,3 +81,5 @@ export default function InventoryHeader({
     </header>
   );
 }
+
+export default React.memo(InventoryHeader);

@@ -1,5 +1,6 @@
 /* Import futuristic styles */
 @import './styles/futuristic.css';
+@import './styles/notebook-paper.css';
 
 @tailwind base;
 @tailwind components;
@@ -32,13 +33,18 @@
   --on-surface: hsl(0, 0%, 13%);
   --error: hsl(0, 75%, 42%);
   
-  /* Futuristic Paper Theme */
-  --paper-texture: hsl(45, 25%, 96%);
-  --paper-grain: hsl(45, 15%, 92%);
-  --ink-fresh: hsl(220, 85%, 15%);
-  --marker-highlight: hsl(55, 100%, 85%);
+  /* Authentic Notebook Paper Theme */
+  --paper-base: hsl(40, 35%, 97%);
+  --paper-shadow: hsl(35, 25%, 92%);
+  --ink-blue: hsl(220, 75%, 25%);
+  --ink-black: hsl(0, 0%, 15%);
+  --marker-yellow: hsl(55, 95%, 75%);
+  --marker-pink: hsl(330, 90%, 80%);
+  --marker-blue: hsl(200, 90%, 80%);
+  --marker-green: hsl(140, 70%, 80%);
   --neon-accent: hsl(280, 100%, 65%);
-  --holographic: linear-gradient(135deg, hsl(280, 100%, 65%), hsl(180, 100%, 50%), hsl(330, 100%, 65%));
+  --paper-line-blue: hsl(200, 60%, 50%);
+  --paper-margin-red: hsl(0, 70%, 55%);
 }
 
 .dark {
