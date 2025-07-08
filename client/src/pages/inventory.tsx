@@ -87,7 +87,7 @@ export default function InventoryPage() {
   };
 
   return (
-    <div className="notepad-page min-h-screen p-8">
+    <div className="min-h-screen paper-texture">
       {/* L.O.G. Framework - Modular Header Component */}
       <InventoryHeader 
         isWeatherDataActive={true}
@@ -95,37 +95,35 @@ export default function InventoryPage() {
         sessionCount={session?.id || 0}
       />
 
-      <main className="max-w-[2000px] mx-auto px-4 pb-8">
-        <div className="grid grid-cols-1 xl:grid-cols-3 lg:grid-cols-2 gap-4 2xl:gap-6 min-h-[calc(100vh-200px)]">
+      <main className="max-w-[2000px] mx-auto px-6 pb-8">
+        <div className="grid grid-cols-1 xl:grid-cols-3 lg:grid-cols-2 gap-6 2xl:gap-8 min-h-[calc(100vh-200px)]">
         
           {/* Left Column - L.O.G. Framework Input Controls */}
           <div className="lg:col-span-1 space-y-6">
             
             {/* Session Status */}
-            <Card className="notepad-card h-auto">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-bold handwritten-text text-blue-800">Live Session</h2>
-                  <span className="text-sm handwritten-text text-gray-700 bg-yellow-200 px-2 py-1 rounded">
-                    {sessionStats.startTime}
-                  </span>
+            <div className="future-card p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl marker-title">Live Session</h2>
+                <span className="glass-panel px-4 py-1 rounded-full">
+                  <span className="sketch-text">{sessionStats.startTime}</span>
+                </span>
+              </div>
+              <div className="grid grid-cols-3 gap-4 text-center">
+                <div className="glass-panel p-4 rounded-lg transform hover:scale-105 transition-transform">
+                  <p className="text-3xl font-bold marker-text highlight highlight-blue">{sessionStats.itemCount}</p>
+                  <p className="text-sm sketch-text mt-1">Items</p>
                 </div>
-                <div className="grid grid-cols-3 gap-4 text-center mt-6">
-                  <div className="bg-yellow-100 rounded-lg p-3 border-2 border-dashed border-blue-300">
-                    <p className="text-3xl font-bold handwritten-text text-blue-700">{sessionStats.itemCount}</p>
-                    <p className="text-xs handwritten-text text-gray-600">Items</p>
-                  </div>
-                  <div className="bg-yellow-100 rounded-lg p-3 border-2 border-dashed border-green-300">
-                    <p className="text-3xl font-bold handwritten-text text-green-700">${sessionStats.totalValue}</p>
-                    <p className="text-xs handwritten-text text-gray-600">Value</p>
-                  </div>
-                  <div className="bg-yellow-100 rounded-lg p-3 border-2 border-dashed border-orange-300">
-                    <p className="text-3xl font-bold handwritten-text text-orange-700">{sessionStats.avgAccuracy}%</p>
-                    <p className="text-xs handwritten-text text-gray-600">Accuracy</p>
-                  </div>
+                <div className="glass-panel p-4 rounded-lg transform hover:scale-105 transition-transform">
+                  <p className="text-3xl font-bold marker-text highlight highlight-yellow">${sessionStats.totalValue}</p>
+                  <p className="text-sm sketch-text mt-1">Value</p>
                 </div>
-              </CardContent>
-            </Card>
+                <div className="glass-panel p-4 rounded-lg transform hover:scale-105 transition-transform">
+                  <p className="text-3xl font-bold marker-text highlight highlight-pink">{sessionStats.avgAccuracy}%</p>
+                  <p className="text-sm sketch-text mt-1">Accuracy</p>
+                </div>
+              </div>
+            </div>
 
             {/* L.O.G. Framework - Product Selection Module */}
             <ProductSelector 
@@ -142,65 +140,62 @@ export default function InventoryPage() {
             />
 
             {/* Sync Controls */}
-            <Card className="notepad-card">
-              <CardHeader className="notepad-card-header">
-                <CardTitle className="handwritten-title flex items-center">
-                  <CloudUpload className="mr-2" />
-                  Sync to MarginEdge
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Button 
-                  onClick={syncToMarginEdge}
-                  disabled={isLoading || sessionStats.itemCount === 0}
-                  className="w-full notepad-button"
-                  size="lg"
-                >
-                  <FolderSync className="w-4 h-4 mr-2" />
-                  Upload Session
-                </Button>
-                <p className="text-xs text-muted-foreground mt-2 text-center">
-                  {sessionStats.itemCount} items ready for upload
-                </p>
-              </CardContent>
-            </Card>
+            <div className="future-card p-6">
+              <div className="flex items-center mb-6">
+                <div className="glass-panel p-3 rounded-full mr-3">
+                  <CloudUpload className="w-6 h-6 text-blue-500" />
+                </div>
+                <h2 className="text-2xl marker-title">Sync to MarginEdge</h2>
+              </div>
+              <button 
+                onClick={syncToMarginEdge}
+                disabled={isLoading || sessionStats.itemCount === 0}
+                className="w-full future-button py-4 text-lg disabled:opacity-50"
+              >
+                <FolderSync className="w-5 h-5 mr-2 inline" />
+                Upload Session
+              </button>
+              <p className="text-center sketch-text mt-3">
+                {sessionStats.itemCount} items ready for upload
+              </p>
+            </div>
           </div>
 
           {/* Middle Column - Current Session */}
           <div className="lg:col-span-1 space-y-6">
-            <Card className="notepad-card flex-1">
-              <CardHeader className="notepad-card-header">
-                <CardTitle className="handwritten-title flex items-center">
-                  <List className="mr-2" />
-                  Current Session Items
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="h-[calc(100%-100px)] overflow-hidden">
+            <div className="future-card h-full p-6">
+              <div className="flex items-center mb-6">
+                <div className="glass-panel p-3 rounded-full mr-3">
+                  <List className="w-6 h-6 text-orange-500" />
+                </div>
+                <h2 className="text-2xl marker-title">Current Session Items</h2>
+              </div>
+              <div className="h-[calc(100%-100px)] overflow-hidden">
                 <InventorySession items={sessionItems} />
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
 
           {/* Right Column - Analytics Tabs */}
           <div className="xl:col-span-1 lg:col-span-2 xl:col-start-3">
-            <Card className="notepad-card h-full">
-              <CardHeader className="notepad-card-header">
-                <CardTitle className="handwritten-title flex items-center">
-                  <Info className="mr-2" />
-                  Business Intelligence
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="h-[calc(100%-100px)] p-0">
+            <div className="future-card h-full p-6">
+              <div className="flex items-center mb-6">
+                <div className="glass-panel p-3 rounded-full mr-3">
+                  <Info className="w-6 h-6 text-cyan-500" />
+                </div>
+                <h2 className="text-2xl marker-title">Business Intelligence</h2>
+              </div>
+              <div className="h-[calc(100%-100px)]">
                 <Tabs defaultValue="weather" className="h-full">
-                  <TabsList className="grid w-full grid-cols-5 bg-yellow-100 m-4 mb-0">
-                    <TabsTrigger value="weather" className="handwritten-text text-xs">Weather</TabsTrigger>
-                    <TabsTrigger value="cost" className="handwritten-text text-xs">Cost Analysis</TabsTrigger>
-                    <TabsTrigger value="quickbooks" className="handwritten-text text-xs">QuickBooks</TabsTrigger>
-                    <TabsTrigger value="supplier" className="handwritten-text text-xs">Suppliers</TabsTrigger>
-                    <TabsTrigger value="pricing" className="handwritten-text text-xs">Pricing</TabsTrigger>
+                  <TabsList className="grid w-full grid-cols-5 glass-panel p-1 rounded-lg mb-4">
+                    <TabsTrigger value="weather" className="marker-text data-[state=active]:bg-white/50">Weather</TabsTrigger>
+                    <TabsTrigger value="cost" className="marker-text data-[state=active]:bg-white/50">Cost</TabsTrigger>
+                    <TabsTrigger value="quickbooks" className="marker-text data-[state=active]:bg-white/50">QuickBooks</TabsTrigger>
+                    <TabsTrigger value="supplier" className="marker-text data-[state=active]:bg-white/50">Suppliers</TabsTrigger>
+                    <TabsTrigger value="pricing" className="marker-text data-[state=active]:bg-white/50">Pricing</TabsTrigger>
                   </TabsList>
                   
-                  <div className="p-4 h-[calc(100%-60px)] overflow-y-auto">
+                  <div className="h-[calc(100%-60px)] overflow-y-auto">
                     <TabsContent value="weather" className="mt-0 h-full">
                       <WeatherDashboard />
                     </TabsContent>
@@ -218,14 +213,17 @@ export default function InventoryPage() {
                     </TabsContent>
                     
                     <TabsContent value="pricing" className="mt-0 h-full">
-                      <div className="text-center py-8">
-                        <p className="handwritten-text text-gray-600">Pricing audit coming soon...</p>
+                      <div className="text-center py-12">
+                        <div className="glass-panel p-8 rounded-full mx-auto w-fit mb-4">
+                          <Info className="w-16 h-16 text-gray-400" />
+                        </div>
+                        <p className="sketch-text text-lg">Pricing audit coming soon...</p>
                       </div>
                     </TabsContent>
                   </div>
                 </Tabs>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
         </div>
       </main>

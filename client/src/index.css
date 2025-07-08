@@ -1,3 +1,6 @@
+/* Import futuristic styles */
+@import './styles/futuristic.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -29,11 +32,13 @@
   --on-surface: hsl(0, 0%, 13%);
   --error: hsl(0, 75%, 42%);
   
-  /* Yellow notepad theme */
-  --notepad-yellow: hsl(48, 100%, 88%);
-  --notepad-line: hsl(200, 100%, 70%);
-  --notepad-margin: hsl(0, 100%, 70%);
-  --notepad-shadow: hsla(0, 0%, 0%, 0.1);
+  /* Futuristic Paper Theme */
+  --paper-texture: hsl(45, 25%, 96%);
+  --paper-grain: hsl(45, 15%, 92%);
+  --ink-fresh: hsl(220, 85%, 15%);
+  --marker-highlight: hsl(55, 100%, 85%);
+  --neon-accent: hsl(280, 100%, 65%);
+  --holographic: linear-gradient(135deg, hsl(280, 100%, 65%), hsl(180, 100%, 50%), hsl(330, 100%, 65%));
 }
 
 .dark {

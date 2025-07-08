@@ -1,0 +1,295 @@
+/* Futuristic Paper UI Design System */
+
+/* Import marker fonts */
+@import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Shadows+Into+Light&family=Architects+Daughter&display=swap');
+
+/* Paper texture and effects */
+.paper-texture {
+  position: relative;
+  background: 
+    /* Subtle paper fibers */
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 3px,
+      hsla(45, 20%, 80%, 0.05) 3px,
+      hsla(45, 20%, 80%, 0.05) 6px
+    ),
+    /* Paper grain */
+    radial-gradient(ellipse at 30% 40%, hsla(45, 25%, 97%, 1), hsla(45, 15%, 94%, 1)),
+    /* Base color */
+    hsl(45, 25%, 96%);
+  
+  /* Paper shadow */
+  box-shadow: 
+    inset 0 0 40px hsla(45, 20%, 60%, 0.08),
+    0 20px 40px hsla(0, 0%, 0%, 0.1);
+}
+
+/* Fresh marker typography */
+.marker-title {
+  font-family: 'Permanent Marker', cursive;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transform: rotate(-2deg);
+  text-shadow: 
+    3px 3px 0 hsla(0, 0%, 0%, 0.05),
+    4px 4px 8px hsla(0, 0%, 0%, 0.1);
+  color: hsl(220, 85%, 15%);
+}
+
+.marker-text {
+  font-family: 'Architects Daughter', cursive;
+  letter-spacing: 0.02em;
+  line-height: 1.6;
+  color: hsl(220, 70%, 20%);
+}
+
+.sketch-text {
+  font-family: 'Shadows Into Light', cursive;
+  font-size: 1.1em;
+  letter-spacing: 0.05em;
+  color: hsl(220, 60%, 30%);
+}
+
+/* Highlighter effects */
+.highlight {
+  position: relative;
+  z-index: 1;
+  display: inline-block;
+}
+
+.highlight-yellow::after {
+  content: '';
+  position: absolute;
+  top: 60%;
+  left: -0.2em;
+  right: -0.2em;
+  height: 0.8em;
+  background: hsla(55, 100%, 70%, 0.4);
+  transform: translateY(-50%) rotate(-1deg) skewX(-15deg);
+  z-index: -1;
+  filter: blur(2px);
+}
+
+.highlight-pink::after {
+  content: '';
+  position: absolute;
+  top: 60%;
+  left: -0.2em;
+  right: -0.2em;
+  height: 0.8em;
+  background: hsla(330, 100%, 70%, 0.3);
+  transform: translateY(-50%) rotate(0.5deg) skewX(10deg);
+  z-index: -1;
+  filter: blur(2px);
+}
+
+.highlight-blue::after {
+  content: '';
+  position: absolute;
+  top: 60%;
+  left: -0.2em;
+  right: -0.2em;
+  height: 0.8em;
+  background: hsla(200, 100%, 70%, 0.3);
+  transform: translateY(-50%) rotate(-0.5deg) skewX(-10deg);
+  z-index: -1;
+  filter: blur(2px);
+}
+
+/* Futuristic card designs */
+.future-card {
+  position: relative;
+  background: hsla(0, 0%, 100%, 0.85);
+  backdrop-filter: blur(20px);
+  border: 1px solid hsla(280, 100%, 70%, 0.2);
+  border-radius: 20px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.future-card::before {
+  content: '';
+  position: absolute;
+  top: -150%;
+  left: -150%;
+  width: 400%;
+  height: 400%;
+  background: linear-gradient(
+    135deg,
+    transparent 30%,
+    hsla(280, 100%, 70%, 0.1) 50%,
+    transparent 70%
+  );
+  animation: holographic 8s linear infinite;
+  pointer-events: none;
+}
+
+.future-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 20px 40px hsla(280, 100%, 50%, 0.15),
+    0 10px 20px hsla(0, 0%, 0%, 0.1);
+  border-color: hsla(280, 100%, 70%, 0.4);
+}
+
+@keyframes holographic {
+  0% { transform: rotate(0deg) translateX(-100%); }
+  100% { transform: rotate(360deg) translateX(100%); }
+}
+
+/* Glass morphism elements */
+.glass-panel {
+  background: hsla(0, 0%, 100%, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid hsla(0, 0%, 100%, 0.3);
+  box-shadow: 
+    0 8px 32px hsla(0, 0%, 0%, 0.1),
+    inset 0 1px 0 hsla(0, 0%, 100%, 0.5);
+}
+
+/* Neon accents */
+.neon-glow {
+  box-shadow: 
+    0 0 20px hsla(280, 100%, 65%, 0.5),
+    inset 0 0 20px hsla(280, 100%, 65%, 0.1);
+  border: 1px solid hsla(280, 100%, 65%, 0.5);
+}
+
+.neon-text {
+  color: hsl(280, 100%, 65%);
+  text-shadow: 
+    0 0 10px hsla(280, 100%, 65%, 0.8),
+    0 0 20px hsla(280, 100%, 65%, 0.6),
+    0 0 30px hsla(280, 100%, 65%, 0.4);
+}
+
+/* Interactive button styles */
+.future-button {
+  position: relative;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, hsl(280, 100%, 65%), hsl(180, 100%, 50%));
+  border: none;
+  border-radius: 30px;
+  color: white;
+  font-family: 'Architects Daughter', cursive;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.future-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: hsla(0, 0%, 100%, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.future-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 10px 30px hsla(280, 100%, 50%, 0.3),
+    0 5px 15px hsla(0, 0%, 0%, 0.2);
+}
+
+.future-button:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+/* Sketch-style borders */
+.sketch-border {
+  border: 2px solid hsl(220, 70%, 20%);
+  border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+  position: relative;
+}
+
+/* Paper fold effect */
+.paper-fold {
+  position: relative;
+  background: hsl(45, 25%, 96%);
+  box-shadow: 
+    0 10px 30px hsla(0, 0%, 0%, 0.1),
+    inset 0 1px 0 hsla(0, 0%, 100%, 0.5);
+}
+
+.paper-fold::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 50px;
+  height: 50px;
+  background: 
+    linear-gradient(
+      45deg,
+      transparent 50%,
+      hsl(45, 20%, 88%) 50%,
+      hsl(45, 25%, 96%)
+    );
+  border-radius: 0 0 0 5px;
+}
+
+/* Animated underlines */
+.animated-underline {
+  position: relative;
+  display: inline-block;
+}
+
+.animated-underline::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, hsl(280, 100%, 65%), hsl(180, 100%, 50%), hsl(330, 100%, 65%));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+
+.animated-underline:hover::after {
+  transform: scaleX(1);
+}
+
+/* Loading animations */
+.pulse-glow {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { 
+    opacity: 1;
+    box-shadow: 0 0 20px hsla(280, 100%, 65%, 0.5);
+  }
+  50% { 
+    opacity: 0.8;
+    box-shadow: 0 0 40px hsla(280, 100%, 65%, 0.8);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .marker-title {
+    font-size: 1.5rem;
+  }
+  
+  .future-card {
+    border-radius: 15px;
+  }
+  
+  .future-button {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
+}

@@ -5,7 +5,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { BadgeCheck, Package2, Map } from "lucide-react";
+import { BadgeCheck, Package2, Map, Camera } from "lucide-react";
 import { Link } from "wouter";
 import { useLogger } from "@/hooks/useLogger";
 
@@ -27,55 +27,52 @@ export default function InventoryHeader({
   };
 
   return (
-    <header className="notepad-header text-white px-6 py-6 mb-8 rounded-t-lg">
-      <div className="max-w-6xl mx-auto">
+    <header className="glass-panel border-b-0 shadow-lg mb-8">
+      <div className="max-w-7xl mx-auto px-6 py-6">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="bg-white/20 rounded-xl p-3">
-              <Package2 className="text-3xl" />
+          <div className="flex items-center space-x-6">
+            <div className="future-card p-4 neon-glow">
+              <Package2 className="text-4xl neon-text" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold handwritten-text text-white">
+              <h1 className="text-4xl marker-title highlight highlight-yellow">
                 Booze Counter 9000
               </h1>
-              <p className="text-blue-100 handwritten-text">
+              <p className="text-lg sketch-text mt-1">
                 AI-Powered Beverage Inventory Management
               </p>
             </div>
           </div>
           
-          <div className="flex items-center space-x-3">
-            <nav className="flex items-center space-x-2">
+          <div className="flex items-center space-x-4">
+            <nav className="flex items-center space-x-3">
               <Link href="/roadmap">
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="bg-white/10 border-white/20 text-white hover:bg-white/20 handwritten-text"
+                <button 
+                  className="future-button"
                   onClick={handleRoadmapClick}
                 >
-                  <Map className="w-4 h-4 mr-2" />
+                  <Map className="w-5 h-5 inline mr-2" />
                   Project Roadmap
-                </Button>
+                </button>
               </Link>
             </nav>
             
-            <div className="flex items-center space-x-2">
-              {isWeatherDataActive && (
-                <div className="flex items-center space-x-2 bg-green-500/20 px-3 py-1 rounded-full">
-                  <BadgeCheck className="text-green-300" />
-                  <span className="text-sm handwritten-text">Live Weather Data</span>
-                </div>
-              )}
-              
-              {isVisionApiActive && (
-                <Badge variant="outline" className="bg-blue-500/20 border-blue-300 text-blue-100">
-                  Vision AI Active
-                </Badge>
-              )}
-              
-              <Badge variant="outline" className="bg-amber-500/20 border-amber-300 text-amber-100">
-                Session {sessionCount}
-              </Badge>
+            {isWeatherDataActive && (
+              <div className="glass-panel px-4 py-2 rounded-full flex items-center space-x-2">
+                <BadgeCheck className="text-green-500" />
+                <span className="marker-text">Live Weather</span>
+              </div>
+            )}
+            
+            {isVisionApiActive && (
+              <div className="glass-panel px-4 py-2 rounded-full flex items-center space-x-2">
+                <Camera className="text-purple-500" />
+                <span className="marker-text">Vision Active</span>
+              </div>
+            )}
+            
+            <div className="future-card px-6 py-2 pulse-glow">
+              <span className="marker-text font-bold">Session #{sessionCount || 'New'}</span>
             </div>
           </div>
         </div>

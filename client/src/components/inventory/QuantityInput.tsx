@@ -3,13 +3,22 @@
  * Single Responsibility: Handle quantity input and validation
  */
 
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Hash, Save } from "lucide-react";
+import { useState } from "react";
+import { Hash, Check, Package2 } from "lucide-react";
 import { Product } from "@shared/schema";
 import { useLogger } from "@/hooks/useLogger";
+import { motion, AnimatePresence } from "framer-motion";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
 
 interface QuantityInputProps {
   selectedProduct: Product | null;
@@ -17,177 +26,135 @@ interface QuantityInputProps {
   disabled?: boolean;
 }
 
+const quantitySchema = z.object({
+  quantity: z.coerce.number()
+    .min(0.01, "Quantity must be greater than 0")
+    .max(10000, "Quantity seems unusually large")
+});
+
 export default function QuantityInput({ 
   selectedProduct, 
   onQuantitySubmitted, 
   disabled = false 
 }: QuantityInputProps) {
-  const [manualQuantity, setManualQuantity] = useState<string>("");
-  const [validationError, setValidationError] = useState<string>("");
   const { logUserAction, logError, trackOperation } = useLogger('QuantityInput');
-
-  // Clear quantity when product changes
-  useEffect(() => {
-    if (selectedProduct) {
-      setManualQuantity("");
-      setValidationError("");
-      logUserAction('quantity_input_reset', { 
-        productId: selectedProduct.id,
-        productSku: selectedProduct.sku 
-      });
+  
+  const form = useForm<z.infer<typeof quantitySchema>>({
+    resolver: zodResolver(quantitySchema),
+    defaultValues: {
+      quantity: 0
     }
-  }, [selectedProduct, logUserAction]);
+  });
 
-  const validateQuantity = (quantityString: string): { isValid: boolean; quantity?: number; error?: string } => {
-    const tracker = trackOperation('validate_quantity', { input: quantityString });
+  const handleSubmit = form.handleSubmit((data) => {
+    if (!selectedProduct) return;
     
-    try {
-      if (!quantityString.trim()) {
-        tracker.end({ valid: false, reason: 'empty_input' });
-        return { isValid: false, error: "Quantity is required" };
-      }
-
-      const quantity = parseFloat(quantityString.trim());
-      
-      if (isNaN(quantity)) {
-        tracker.end({ valid: false, reason: 'not_a_number' });
-        return { isValid: false, error: "Please enter a valid number" };
-      }
-
-      if (quantity <= 0) {
-        tracker.end({ valid: false, reason: 'negative_or_zero' });
-        return { isValid: false, error: "Quantity must be greater than 0" };
-      }
-
-      if (quantity > 10000) {
-        tracker.end({ valid: false, reason: 'too_large' });
-        return { isValid: false, error: "Quantity seems unusually large. Please verify." };
-      }
-
-      tracker.end({ valid: true, quantity });
-      return { isValid: true, quantity };
-    } catch (error: any) {
-      logError(error, 'validate_quantity', { input: quantityString });
-      tracker.end({ valid: false, error: error.message });
-      return { isValid: false, error: "Invalid quantity format" };
-    }
-  };
-
-  const handleQuantityChange = (value: string) => {
-    setManualQuantity(value);
-    setValidationError("");
-    
-    // Real-time validation feedback
-    if (value.trim()) {
-      const validation = validateQuantity(value);
-      if (!validation.isValid && validation.error) {
-        setValidationError(validation.error);
-      }
-    }
-  };
-
-  const handleManualQuantitySubmit = () => {
-    if (!selectedProduct) {
-      setValidationError("Please select a product first");
-      return;
-    }
-
-    const validation = validateQuantity(manualQuantity);
-    
-    if (!validation.isValid) {
-      setValidationError(validation.error || "Invalid quantity");
-      logUserAction('quantity_validation_failed', {
-        productId: selectedProduct.id,
-        input: manualQuantity,
-        error: validation.error
-      });
-      return;
-    }
-
     const tracker = trackOperation('submit_quantity', {
       productId: selectedProduct.id,
-      quantity: validation.quantity
+      quantity: data.quantity
     });
 
     try {
-      onQuantitySubmitted(selectedProduct, validation.quantity!);
+      onQuantitySubmitted(selectedProduct, data.quantity);
       
       logUserAction('quantity_submitted', {
         productId: selectedProduct.id,
         productSku: selectedProduct.sku,
-        quantity: validation.quantity,
+        quantity: data.quantity,
         inputMethod: 'manual'
       });
 
-      // Clear form after successful submission
-      setManualQuantity("");
-      setValidationError("");
-      
+      // Reset form
+      form.reset();
       tracker.end({ success: true });
     } catch (error: any) {
-      logError(error, 'submit_quantity', {
+      logError(error, 'quantity_submission', {
         productId: selectedProduct.id,
-        quantity: validation.quantity
+        quantity: data.quantity
       });
       tracker.end({ success: false, error: error.message });
-      setValidationError("Failed to submit quantity. Please try again.");
     }
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleManualQuantitySubmit();
-    }
-  };
-
-  const isSubmitDisabled = disabled || !selectedProduct || !manualQuantity.trim() || !!validationError;
+  });
 
   return (
-    <Card className="notepad-card">
-      <CardHeader className="notepad-card-header">
-        <CardTitle className="handwritten-title flex items-center">
-          <Hash className="mr-2" />
-          Enter Quantity
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <Input
-            type="number"
-            placeholder="Enter quantity..."
-            value={manualQuantity}
-            onChange={(e) => handleQuantityChange(e.target.value)}
-            onKeyPress={handleKeyPress}
-            disabled={disabled || !selectedProduct}
-            className={validationError ? "border-red-500 focus:border-red-500" : ""}
-            min="0"
-            step="0.1"
-          />
-          
-          {validationError && (
-            <p className="text-sm text-red-500 font-medium">
-              {validationError}
-            </p>
-          )}
-          
-          {selectedProduct && (
-            <p className="text-sm text-muted-foreground">
-              Unit: {selectedProduct.unitOfMeasure || 'each'} • 
-              Par Level: {selectedProduct.parLevel || 'Not set'}
-            </p>
-          )}
+    <div className="future-card p-6">
+      <div className="flex items-center mb-6">
+        <div className="glass-panel p-3 rounded-full mr-3">
+          <Hash className="w-6 h-6 text-green-500" />
         </div>
+        <h2 className="text-2xl marker-title">Quantity Entry</h2>
+      </div>
+      
+      <AnimatePresence mode="wait">
+        {selectedProduct ? (
+          <motion.div
+            key="quantity-form"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="space-y-4"
+          >
+            <div className="glass-panel p-5 rounded-lg text-center">
+              <p className="sketch-text mb-2">Enter quantity for:</p>
+              <p className="text-xl marker-text font-bold highlight highlight-pink">
+                {selectedProduct.name}
+              </p>
+            </div>
 
-        <Button 
-          onClick={handleManualQuantitySubmit}
-          disabled={isSubmitDisabled}
-          className="w-full notepad-button"
-          size="lg"
-        >
-          <Save className="w-4 h-4 mr-2" />
-          Add to Inventory
-        </Button>
-      </CardContent>
-    </Card>
+            <Form {...form}>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="quantity"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <input
+                          {...field}
+                          type="number"
+                          placeholder="0"
+                          className="w-full text-center text-4xl font-bold marker-text glass-panel py-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          autoFocus
+                          min="0"
+                          step="1"
+                        />
+                      </FormControl>
+                      <FormDescription className="text-center sketch-text mt-2">
+                        Press Enter to confirm
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <button 
+                  type="submit" 
+                  disabled={disabled}
+                  className="w-full future-button py-4 text-lg"
+                >
+                  <Check className="w-5 h-5 mr-2 inline" />
+                  Confirm Quantity
+                </button>
+              </form>
+            </Form>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="no-product"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="text-center py-12"
+          >
+            <div className="glass-panel p-8 rounded-full mx-auto w-fit mb-4">
+              <Package2 className="w-16 h-16 text-gray-400" />
+            </div>
+            <p className="sketch-text text-lg">
+              Select a product to enter quantity
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
