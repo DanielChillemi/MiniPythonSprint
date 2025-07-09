@@ -37,8 +37,8 @@ export default function BarcodeScanner({ onProductScanned, onBarcodeDetected }: 
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
           facingMode: 'environment',
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
+          width: { ideal: window.innerWidth < 768 ? 640 : 1280 },
+          height: { ideal: window.innerWidth < 768 ? 480 : 720 }
         }
       });
       
@@ -186,7 +186,7 @@ export default function BarcodeScanner({ onProductScanned, onBarcodeDetected }: 
             {/* Scanning overlay */}
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="relative">
-                <div className="w-64 h-48 border-2 border-white/50 rounded-lg">
+                <div className={`${window.innerWidth < 768 ? 'w-48 h-36' : 'w-64 h-48'} border-2 border-white/50 rounded-lg`}>
                   {/* Corner markers */}
                   <div className="absolute -top-1 -left-1 w-8 h-8 border-t-4 border-l-4 border-yellow-400 rounded-tl-lg" />
                   <div className="absolute -top-1 -right-1 w-8 h-8 border-t-4 border-r-4 border-yellow-400 rounded-tr-lg" />

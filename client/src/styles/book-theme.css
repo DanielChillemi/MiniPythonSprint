@@ -321,3 +321,141 @@
   -webkit-text-fill-color: transparent;
   animation: gold-shimmer 3s linear infinite;
 }
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+  .book-container {
+    padding: 10px;
+  }
+  
+  /* Adjust book pages for mobile */
+  .book-page {
+    padding: 30px 20px;
+  }
+  
+  .page-number-left {
+    left: 20px;
+  }
+  
+  .page-number-right {
+    right: 20px;
+  }
+  
+  /* Smaller typography on mobile */
+  .chapter-header {
+    font-size: 1.75rem;
+  }
+  
+  .section-title {
+    font-size: 1.25rem;
+  }
+  
+  .book-title {
+    font-size: 2rem;
+  }
+  
+  .book-subtitle {
+    font-size: 1rem;
+  }
+  
+  /* Adjust button sizes */
+  .book-button {
+    padding: 8px 16px;
+    font-size: 0.875rem;
+  }
+  
+  /* Stack navigation buttons vertically */
+  .fixed.top-8.left-8 {
+    flex-direction: column;
+    gap: 8px;
+    top: 10px;
+    left: 10px;
+  }
+  
+  /* Smaller page indicator */
+  .fixed.top-8.right-8 {
+    top: 10px;
+    right: 10px;
+    font-size: 0.875rem;
+  }
+  
+  /* Hide page flip arrows on mobile - use swipe */
+  button[class*="translate-y-1/2"] {
+    display: none;
+  }
+  
+  /* Adjust table of contents */
+  .book-page button {
+    padding: 10px 8px;
+    font-size: 0.875rem;
+  }
+  
+  /* Barcode scanner tabs */
+  .book-page > div > div.flex.gap-2 button {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Ultra compact for small phones */
+  .book-page {
+    padding: 20px 15px;
+  }
+  
+  .chapter-header {
+    font-size: 1.5rem;
+  }
+  
+  .section-title {
+    font-size: 1.1rem;
+  }
+  
+  .book-title {
+    font-size: 1.75rem;
+  }
+  
+  /* Reduce form spacing */
+  .space-y-4 > * {
+    margin-bottom: 0.75rem;
+  }
+  
+  /* Compact cards */
+  .book-card {
+    padding: 12px;
+  }
+  
+  /* Single column layout for navigation */
+  .fixed.top-8.left-8 {
+    position: fixed;
+    bottom: 20px;
+    top: auto;
+    left: 50%;
+    transform: translateX(-50%);
+    flex-direction: row;
+    background: var(--page-bg);
+    padding: 8px;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+}
+
+/* Touch-friendly mobile styles */
+@media (pointer: coarse) {
+  /* Larger touch targets */
+  button, a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* More spacing for touch */
+  .space-y-2 > * + * {
+    margin-top: 0.75rem;
+  }
+  
+  /* Bigger form elements */
+  input, select, textarea {
+    min-height: 44px;
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+}

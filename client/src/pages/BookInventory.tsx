@@ -3,11 +3,12 @@
  * Using react-pageflip for realistic page turning
  */
 
-import { useRef, useState, useCallback, forwardRef } from 'react';
+import { useRef, useState, useCallback, forwardRef, useEffect } from 'react';
 import HTMLFlipBook from 'react-pageflip';
 import { Product } from '@shared/schema';
 import { useQuery } from '@tanstack/react-query';
-import { ChevronLeft, ChevronRight, BookOpen, Home } from 'lucide-react';
+import { ChevronLeft, ChevronRight, BookOpen, Home, MoveHorizontal } from 'lucide-react';
+import { useMobileDetection } from '@/hooks/useMobileDetection';
 import ProductSelector from '@/components/inventory/ProductSelector';
 import QuantityInput from '@/components/inventory/QuantityInput';
 import WeatherDashboard from '@/components/WeatherDashboard';
@@ -61,11 +62,20 @@ export default function BookInventory() {
   const [currentPage, setCurrentPage] = useState(0);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [scannerMode, setScannerMode] = useState<'camera' | 'demo'>('demo');
+  const { isMobile, isTouch } = useMobileDetection();
+  const [showSwipeHint, setShowSwipeHint] = useState(true);
   
   // Fetch products
   const { data: products = [] } = useQuery<Product[]>({
     queryKey: ['/api/products'],
   });
+
+  // Hide swipe hint after first page turn
+  useEffect(() => {
+    if (currentPage > 0) {
+      setShowSwipeHint(false);
+    }
+  }, [currentPage]);
 
   // Navigation functions
   const flipNext = useCallback(() => {
@@ -116,6 +126,14 @@ export default function BookInventory() {
         Page {currentPage + 1} of 12
       </div>
 
+      {/* Mobile swipe hint */}
+      {isMobile && showSwipeHint && currentPage === 0 && (
+        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 bg-black/80 text-white px-4 py-2 rounded-full flex items-center gap-2 animate-pulse">
+          <MoveHorizontal className="w-4 h-4" />
+          <span className="text-sm">Swipe to turn pages</span>
+        </div>
+      )}
+
       {/* Page flip controls */}
       <button
         onClick={flipPrev}
@@ -136,20 +154,20 @@ export default function BookInventory() {
       {/* The Book */}
       <HTMLFlipBook
         ref={bookRef}
-        width={500}
-        height={700}
-        size="fixed"
-        minWidth={315}
-        maxWidth={1000}
-        minHeight={420}
-        maxHeight={1350}
+        width={isMobile ? 350 : 500}
+        height={isMobile ? 500 : 700}
+        size="stretch"
+        minWidth={280}
+        maxWidth={600}
+        minHeight={400}
+        maxHeight={800}
         showCover={true}
         flippingTime={1000}
         usePortrait={true}
         startZIndex={0}
-        autoSize={false}
+        autoSize={true}
         maxShadowOpacity={0.5}
-        showPageCorners={true}
+        showPageCorners={!isMobile}
         disableFlipByClick={false}
         className="book-flip"
         style={{}}
@@ -157,9 +175,10 @@ export default function BookInventory() {
         drawShadow={true}
         useMouseEvents={true}
         renderOnlyPageLengthChange={false}
-        swipeDistance={30}
+        swipeDistance={50}
         clickEventForward={true}
         onFlip={(e) => setCurrentPage(e.data)}
+        mobileScrollSupport={true}
       >
         {/* Front Cover */}
         <BookCover
