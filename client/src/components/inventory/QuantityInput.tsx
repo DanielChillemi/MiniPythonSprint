@@ -77,7 +77,7 @@ function QuantityInput({
   });
 
   return (
-    <div className="future-card p-6">
+    <div className="book-card">
       <div className="flex items-center mb-6">
         <div className="glass-panel p-3 rounded-full mr-3">
           <Hash className="w-6 h-6 text-green-500" />

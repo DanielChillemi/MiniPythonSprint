@@ -1,5 +1,4 @@
-/* Import futuristic styles */
-@import './styles/futuristic.css';
+@import './styles/book-theme.css';
 @import './styles/notebook-paper.css';
 
 @tailwind base;

@@ -615,6 +615,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Test Google Vision API endpoint
+  app.get("/api/test-google-vision", async (req, res) => {
+    try {
+      const apiKey = process.env.GOOGLE_CLOUD_API_KEY;
+      
+      if (!apiKey) {
+        return res.json({
+          googleVision: {
+            configured: false,
+            message: "Google Cloud API key not configured"
+          }
+        });
+      }
+
+      // Test with a simple API call
+      const testResponse = await fetch(`https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          requests: [{
+            image: {
+              source: {
+                imageUri: "https://www.gstatic.com/webp/gallery/1.jpg"
+              }
+            },
+            features: [{
+              type: 'LABEL_DETECTION',
+              maxResults: 1
+            }]
+          }]
+        })
+      });
+
+      const responseData = await testResponse.json();
+      
+      res.json({
+        googleVision: {
+          configured: true,
+          status: testResponse.ok ? 'active' : 'error',
+          statusCode: testResponse.status,
+          message: testResponse.ok ? 'Google Vision API is working correctly' : 'API request failed',
+          error: !testResponse.ok ? responseData.error : undefined,
+          testResult: testResponse.ok ? responseData : undefined
+        }
+      });
+      
+    } catch (error) {
+      res.json({
+        googleVision: {
+          configured: true,
+          status: 'error',
+          message: 'Failed to connect to Google Vision API',
+          error: error instanceof Error ? error.message : 'Unknown error'
+        }
+      });
+    }
+  });
+
   // API monitoring and health check endpoint
   app.get("/api/system/status", async (req, res) => {
     try {

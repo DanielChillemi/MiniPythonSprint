@@ -31,7 +31,7 @@ function ProductSelector({
   // Barcode scan simulation will be handled by ProductLookup component
 
   return (
-    <div className="future-card p-6">
+    <div className="book-card">
       <div className="flex items-center mb-6">
         <div className="glass-panel p-3 rounded-full mr-3">
           <Package className="w-6 h-6 text-purple-500" />
