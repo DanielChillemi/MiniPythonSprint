@@ -5,13 +5,15 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import InventoryPage from "@/pages/inventory";
 import BookInventory from "@/pages/BookInventory";
+import SimpleInventory from "@/pages/SimpleInventory";
 import RoadmapPage from "@/pages/roadmap";
 import NotFound from "@/pages/not-found";
 
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={BookInventory} />
+      <Route path="/" component={SimpleInventory} />
+      <Route path="/book" component={BookInventory} />
       <Route path="/old" component={InventoryPage} />
       <Route path="/roadmap" component={RoadmapPage} />
       <Route component={NotFound} />
