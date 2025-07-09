@@ -178,30 +178,48 @@ export default function BookInventory() {
         <Page pageNumber={2}>
           <h2 className="chapter-header">Table of Contents</h2>
           <div className="space-y-4">
-            <div className="flex justify-between items-center py-2 border-b border-neutral-300">
-              <span>Chapter 1: Product Selection</span>
-              <span>Page 3</span>
-            </div>
-            <div className="flex justify-between items-center py-2 border-b border-neutral-300">
-              <span>Chapter 2: Quantity Entry</span>
-              <span>Page 4</span>
-            </div>
-            <div className="flex justify-between items-center py-2 border-b border-neutral-300">
-              <span>Chapter 3: Weather Analytics</span>
-              <span>Page 5</span>
-            </div>
-            <div className="flex justify-between items-center py-2 border-b border-neutral-300">
-              <span>Chapter 4: Cost Analysis</span>
-              <span>Page 6</span>
-            </div>
-            <div className="flex justify-between items-center py-2 border-b border-neutral-300">
-              <span>Chapter 5: QuickBooks Integration</span>
-              <span>Page 7</span>
-            </div>
-            <div className="flex justify-between items-center py-2 border-b border-neutral-300">
-              <span>Chapter 6: Supplier Performance</span>
-              <span>Page 8</span>
-            </div>
+            <button
+              onClick={() => flipToPage(3)}
+              className="w-full flex justify-between items-center py-3 px-2 border-b border-neutral-300 hover:bg-neutral-50 transition-all duration-200 text-left group"
+            >
+              <span className="group-hover:text-ink-accent transition-colors font-medium">Chapter 1: Product Selection</span>
+              <span className="text-ink-secondary group-hover:text-ink-accent transition-colors">Page 3 →</span>
+            </button>
+            <button
+              onClick={() => flipToPage(4)}
+              className="w-full flex justify-between items-center py-3 px-2 border-b border-neutral-300 hover:bg-neutral-50 transition-all duration-200 text-left group"
+            >
+              <span className="group-hover:text-ink-accent transition-colors font-medium">Chapter 2: Quantity Entry</span>
+              <span className="text-ink-secondary group-hover:text-ink-accent transition-colors">Page 4 →</span>
+            </button>
+            <button
+              onClick={() => flipToPage(5)}
+              className="w-full flex justify-between items-center py-3 px-2 border-b border-neutral-300 hover:bg-neutral-50 transition-all duration-200 text-left group"
+            >
+              <span className="group-hover:text-ink-accent transition-colors font-medium">Chapter 3: Weather Analytics</span>
+              <span className="text-ink-secondary group-hover:text-ink-accent transition-colors">Page 5 →</span>
+            </button>
+            <button
+              onClick={() => flipToPage(6)}
+              className="w-full flex justify-between items-center py-3 px-2 border-b border-neutral-300 hover:bg-neutral-50 transition-all duration-200 text-left group"
+            >
+              <span className="group-hover:text-ink-accent transition-colors font-medium">Chapter 4: Cost Analysis</span>
+              <span className="text-ink-secondary group-hover:text-ink-accent transition-colors">Page 6 →</span>
+            </button>
+            <button
+              onClick={() => flipToPage(7)}
+              className="w-full flex justify-between items-center py-3 px-2 border-b border-neutral-300 hover:bg-neutral-50 transition-all duration-200 text-left group"
+            >
+              <span className="group-hover:text-ink-accent transition-colors font-medium">Chapter 5: QuickBooks Integration</span>
+              <span className="text-ink-secondary group-hover:text-ink-accent transition-colors">Page 7 →</span>
+            </button>
+            <button
+              onClick={() => flipToPage(8)}
+              className="w-full flex justify-between items-center py-3 px-2 border-b border-neutral-300 hover:bg-neutral-50 transition-all duration-200 text-left group"
+            >
+              <span className="group-hover:text-ink-accent transition-colors font-medium">Chapter 6: Supplier Performance</span>
+              <span className="text-ink-secondary group-hover:text-ink-accent transition-colors">Page 8 →</span>
+            </button>
           </div>
         </Page>
 

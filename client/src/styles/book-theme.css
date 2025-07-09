@@ -1,4 +1,5 @@
-/* Magical Book Theme - Moving Away from Vaporwave */
+
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@700&family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&display=swap');
 
 /* Earth-tone color palette for a warm, professional look */
 :root {
@@ -320,7 +321,3 @@
   -webkit-text-fill-color: transparent;
   animation: gold-shimmer 3s linear infinite;
 }
-
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@700&family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&display=swap');
-
-/* Magical Book Theme - Moving Away from Vaporwave */
