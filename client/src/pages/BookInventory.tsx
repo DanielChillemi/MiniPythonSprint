@@ -14,6 +14,8 @@ import WeatherDashboard from '@/components/WeatherDashboard';
 import CostAnalysisDashboard from '@/components/CostAnalysisDashboard';
 import QuickBooksIntegration from '@/components/QuickBooksIntegration';
 import SupplierAnalytics from '@/components/SupplierAnalytics';
+import BarcodeScanner from '@/components/inventory/BarcodeScanner';
+import BarcodeScannerDemo from '@/components/inventory/BarcodeScannerDemo';
 
 // Page component wrapper
 const Page = forwardRef<HTMLDivElement, { children: React.ReactNode; pageNumber?: number }>(
@@ -58,6 +60,7 @@ export default function BookInventory() {
   const bookRef = useRef<any>(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [scannerMode, setScannerMode] = useState<'camera' | 'demo'>('demo');
   
   // Fetch products
   const { data: products = [] } = useQuery<Product[]>({
@@ -182,7 +185,7 @@ export default function BookInventory() {
               onClick={() => flipToPage(3)}
               className="w-full flex justify-between items-center py-3 px-2 border-b border-neutral-300 hover:bg-neutral-50 transition-all duration-200 text-left group"
             >
-              <span className="group-hover:text-ink-accent transition-colors font-medium">Chapter 1: Product Selection</span>
+              <span className="group-hover:text-ink-accent transition-colors font-medium">Chapter 1: Product Selection & Scanner</span>
               <span className="text-ink-secondary group-hover:text-ink-accent transition-colors">Page 3 →</span>
             </button>
             <button
@@ -227,6 +230,55 @@ export default function BookInventory() {
         <Page pageNumber={3}>
           <h2 className="chapter-header">Chapter 1</h2>
           <h3 className="section-title text-center mb-8">Product Selection</h3>
+          
+          {/* Barcode Scanner Section */}
+          <div className="mb-6">
+            <h4 className="text-lg font-semibold mb-4 text-ink-accent">Barcode Scanner</h4>
+            
+            {/* Tab selection */}
+            <div className="flex gap-2 mb-4">
+              <button
+                onClick={() => setScannerMode('camera')}
+                className={`px-4 py-2 rounded-lg transition-colors ${
+                  scannerMode === 'camera' 
+                    ? 'bg-ink-accent text-white' 
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                Camera Scanner
+              </button>
+              <button
+                onClick={() => setScannerMode('demo')}
+                className={`px-4 py-2 rounded-lg transition-colors ${
+                  scannerMode === 'demo' 
+                    ? 'bg-ink-accent text-white' 
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                Demo Mode
+              </button>
+            </div>
+            
+            {scannerMode === 'camera' ? (
+              <BarcodeScanner
+                onProductScanned={(product) => {
+                  setSelectedProduct(product);
+                  handleProductSelected(product);
+                }}
+                onBarcodeDetected={(barcode) => {
+                  console.log('Barcode detected:', barcode);
+                }}
+              />
+            ) : (
+              <BarcodeScannerDemo />
+            )}
+          </div>
+          
+          <div className="my-4 text-center text-ink-secondary">
+            <span>— or —</span>
+          </div>
+          
+          {/* Manual Product Selection */}
           <ProductSelector
             selectedProduct={selectedProduct}
             onProductSelected={handleProductSelected}

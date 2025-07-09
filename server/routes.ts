@@ -402,6 +402,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 {
                   type: 'TEXT_DETECTION',
                   maxResults: 10
+                },
+                {
+                  type: 'PRODUCT_SEARCH',
+                  maxResults: 5
                 }
               ],
             },
