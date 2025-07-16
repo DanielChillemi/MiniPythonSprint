@@ -266,6 +266,7 @@ export function AIVolumeEstimator({ product, onVolumeEstimated, onProductDetecte
   }, []);
 
   return (
+    <>
     <Card className="notebook-card">
       <CardHeader>
         <CardTitle className="flex items-center space-x-2">
@@ -393,5 +394,54 @@ export function AIVolumeEstimator({ product, onVolumeEstimated, onProductDetecte
         </div>
       </CardContent>
     </Card>
+
+    {/* Full-screen camera modal for mobile */}
+    {isCapturing && (
+      <div className="md:hidden fixed inset-0 z-50 bg-black flex flex-col">
+        {/* Header with controls */}
+        <div className="flex items-center justify-between p-4 bg-black/80 text-white">
+          <h3 className="text-lg font-semibold">AI Camera</h3>
+          <button
+            onClick={stopCamera}
+            className="p-2 rounded-full bg-red-600 hover:bg-red-700"
+          >
+            <StopCircle className="w-6 h-6" />
+          </button>
+        </div>
+        
+        {/* Full-screen video */}
+        <div className="flex-1 relative">
+          <video
+            ref={videoRef}
+            autoPlay
+            playsInline
+            muted
+            className="w-full h-full object-cover"
+          />
+          
+          {/* Camera controls overlay */}
+          <div className="absolute bottom-8 left-0 right-0 flex justify-center space-x-4 px-4">
+            <button
+              onClick={performVolumeEstimation}
+              disabled={isProcessing}
+              className="flex-1 max-w-xs py-4 px-6 bg-primary text-primary-foreground rounded-xl font-medium hover:bg-primary/90 disabled:opacity-50"
+            >
+              {isProcessing ? (
+                <span className="flex items-center justify-center space-x-2">
+                  <Brain className="w-6 h-6 animate-pulse" />
+                  <span>AI Analyzing...</span>
+                </span>
+              ) : (
+                <span className="flex items-center justify-center space-x-2">
+                  <Sparkles className="w-6 h-6" />
+                  <span>Estimate Volume</span>
+                </span>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+  </>
   );
 }
