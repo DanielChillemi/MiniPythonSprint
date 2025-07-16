@@ -168,9 +168,13 @@ export function AIVolumeEstimator({ product, onVolumeEstimated, onProductDetecte
         }
       });
       
-      if (videoRef.current && mobileVideoRef.current) {
-        videoRef.current.srcObject = stream;
-        mobileVideoRef.current.srcObject = stream;
+      if (videoRef.current || mobileVideoRef.current) {
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+        if (mobileVideoRef.current) {
+          mobileVideoRef.current.srcObject = stream;
+        }
         streamRef.current = stream;
         setIsCapturing(true);
         
@@ -370,6 +374,15 @@ export function AIVolumeEstimator({ product, onVolumeEstimated, onProductDetecte
           {/* Hidden canvas for image processing */}
           <canvas ref={canvasRef} className="hidden" />
           
+          {/* Hidden mobile video element - always present */}
+          <video
+            ref={mobileVideoRef}
+            autoPlay
+            playsInline
+            muted
+            className="hidden"
+          />
+          
           {confidence !== null && (
             <AIInsight
               type="success"
@@ -419,6 +432,7 @@ export function AIVolumeEstimator({ product, onVolumeEstimated, onProductDetecte
             playsInline
             muted
             className="w-full h-full object-cover"
+            style={{ display: isCapturing ? 'block' : 'none' }}
           />
           
           {/* Camera controls overlay */}
