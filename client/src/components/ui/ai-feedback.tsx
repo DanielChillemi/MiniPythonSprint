@@ -3,8 +3,8 @@
  * Provides realistic AI-powered feedback and suggestions
  */
 
-import { useState, useEffect } from 'react';
-import { Brain, Sparkles, TrendingUp, AlertTriangle, CheckCircle, Zap } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Brain, Sparkles, TrendingUp, AlertTriangle, CheckCircle, Zap, Camera, Video, StopCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from './card';
 import { Badge } from './badge';
 import { Alert, AlertDescription } from './alert';
@@ -149,52 +149,174 @@ export function SmartRecommendations({ recommendations }: { recommendations: Arr
 export function AIVolumeEstimator({ product, onVolumeEstimated }: { product: any; onVolumeEstimated: (volume: number) => void }) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [confidence, setConfidence] = useState<number | null>(null);
+  const [isCapturing, setIsCapturing] = useState(false);
+  const [analysis, setAnalysis] = useState<any>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const simulateVolumeEstimation = () => {
+  const startCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: 'environment',
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        }
+      });
+      
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        streamRef.current = stream;
+        setIsCapturing(true);
+      }
+    } catch (error) {
+      console.error('Camera access failed:', error);
+    }
+  };
+
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+    setIsCapturing(false);
+  };
+
+  const performVolumeEstimation = async () => {
+    if (!videoRef.current || !canvasRef.current) return;
+    
     setIsProcessing(true);
     
-    // Simulate AI processing
-    setTimeout(() => {
-      const estimatedVolume = Math.floor(Math.random() * 50) + 10; // Random volume between 10-60
-      const estimatedConfidence = Math.floor(Math.random() * 30) + 70; // Confidence between 70-100%
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    const context = canvas.getContext('2d');
+    
+    if (!context) return;
+    
+    // Set canvas size to match video
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    
+    // Draw video frame to canvas
+    context.drawImage(video, 0, 0);
+    
+    // Convert to base64
+    const imageData = canvas.toDataURL('image/jpeg', 0.8);
+    
+    try {
+      const response = await fetch('/api/ai-volume-estimate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          imageData,
+          productInfo: product 
+        })
+      });
       
-      setConfidence(estimatedConfidence);
+      const result = await response.json();
+      
+      if (result.success) {
+        setConfidence(result.confidence);
+        setAnalysis(result.analysis);
+        onVolumeEstimated(result.estimatedVolume);
+        stopCamera();
+      }
+    } catch (error) {
+      console.error('Volume estimation failed:', error);
+    } finally {
       setIsProcessing(false);
-      onVolumeEstimated(estimatedVolume);
-    }, 2000);
+    }
   };
+
+  // Cleanup camera stream on unmount
+  useEffect(() => {
+    return () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, []);
 
   return (
     <Card className="notebook-card">
       <CardHeader>
         <CardTitle className="flex items-center space-x-2">
           <Brain className="w-5 h-5 text-purple-600" />
-          <span>AI Volume Estimator</span>
+          <span>AI Visual Volume Estimator</span>
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            Use AI to estimate product volume from image analysis
+            Use Google Cloud Vision API to estimate product volume from camera analysis
           </p>
           
-          <button
-            onClick={simulateVolumeEstimation}
-            disabled={isProcessing}
-            className="w-full py-2 px-4 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isProcessing ? (
-              <span className="flex items-center justify-center space-x-2">
-                <Brain className="w-4 h-4 animate-pulse" />
-                <span>AI Processing...</span>
-              </span>
+          {/* Camera controls */}
+          <div className="flex space-x-2">
+            {!isCapturing ? (
+              <button
+                onClick={startCamera}
+                disabled={isProcessing}
+                className="flex-1 py-2 px-4 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <span className="flex items-center justify-center space-x-2">
+                  <Camera className="w-4 h-4" />
+                  <span>Start Camera</span>
+                </span>
+              </button>
             ) : (
-              <span className="flex items-center justify-center space-x-2">
-                <Sparkles className="w-4 h-4" />
-                <span>Estimate Volume</span>
-              </span>
+              <>
+                <button
+                  onClick={performVolumeEstimation}
+                  disabled={isProcessing}
+                  className="flex-1 py-2 px-4 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isProcessing ? (
+                    <span className="flex items-center justify-center space-x-2">
+                      <Brain className="w-4 h-4 animate-pulse" />
+                      <span>AI Analyzing...</span>
+                    </span>
+                  ) : (
+                    <span className="flex items-center justify-center space-x-2">
+                      <Sparkles className="w-4 h-4" />
+                      <span>Estimate Volume</span>
+                    </span>
+                  )}
+                </button>
+                <button
+                  onClick={stopCamera}
+                  disabled={isProcessing}
+                  className="py-2 px-4 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <StopCircle className="w-4 h-4" />
+                </button>
+              </>
             )}
-          </button>
+          </div>
+          
+          {/* Camera preview */}
+          {isCapturing && (
+            <div className="relative">
+              <video
+                ref={videoRef}
+                autoPlay
+                playsInline
+                muted
+                className="w-full h-48 object-cover rounded-lg bg-gray-100"
+              />
+              <div className="absolute inset-0 border-2 border-dashed border-purple-400 rounded-lg flex items-center justify-center bg-purple-100/20">
+                <div className="text-purple-600 text-sm font-medium">
+                  Point camera at product packaging
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* Hidden canvas for image processing */}
+          <canvas ref={canvasRef} className="hidden" />
           
           {confidence !== null && (
             <AIInsight
@@ -208,6 +330,16 @@ export function AIVolumeEstimator({ product, onVolumeEstimated }: { product: any
                 'Update inventory tracking system'
               ]}
             />
+          )}
+          
+          {analysis && (
+            <div className="text-xs text-muted-foreground space-y-1">
+              <div><strong>Analysis Method:</strong> {analysis.method}</div>
+              <div><strong>Packaging Type:</strong> {analysis.packagingType}</div>
+              {analysis.objectsDetected && (
+                <div><strong>Objects Detected:</strong> {analysis.objectsDetected}</div>
+              )}
+            </div>
           )}
         </div>
       </CardContent>
