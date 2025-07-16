@@ -363,23 +363,21 @@ export function AIVolumeEstimator({ product, onVolumeEstimated }: { product: any
           </div>
           </div>
           
-          {/* Camera preview */}
-          {isCapturing && (
-            <div className="relative">
-              <video
-                ref={videoRef}
-                autoPlay
-                playsInline
-                muted
-                className="w-full h-48 object-cover rounded-lg bg-gray-100"
-              />
-              <div className="absolute inset-0 border-2 border-dashed border-purple-400 rounded-lg flex items-center justify-center bg-purple-100/20">
-                <div className="text-purple-600 text-sm font-medium">
-                  Point camera at product packaging
-                </div>
+          {/* Camera preview - always present but hidden when not capturing */}
+          <div className={`relative ${isCapturing ? 'block' : 'hidden'}`}>
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              className="w-full h-48 object-cover rounded-lg bg-gray-100"
+            />
+            <div className="absolute inset-0 border-2 border-dashed border-purple-400 rounded-lg flex items-center justify-center bg-purple-100/20">
+              <div className="text-purple-600 text-sm font-medium">
+                Point camera at product packaging
               </div>
             </div>
-          )}
+          </div>
           
           {/* Hidden canvas for image processing */}
           <canvas ref={canvasRef} className="hidden" />
