@@ -158,7 +158,10 @@ export function AIVolumeEstimator({ product, onVolumeEstimated }: { product: any
   const { toast } = useToast();
 
   const startCamera = async () => {
+    console.log('Starting camera...');
+    
     try {
+      console.log('Requesting camera permissions...');
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
           facingMode: 'environment',
@@ -167,18 +170,27 @@ export function AIVolumeEstimator({ product, onVolumeEstimated }: { product: any
         }
       });
       
+      console.log('Camera stream obtained:', stream);
+      
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         streamRef.current = stream;
         setIsCapturing(true);
+        console.log('Camera started successfully');
+        
+        toast({
+          title: "Camera Started",
+          description: "Camera is now active. Point at product packaging and click 'Estimate Volume'.",
+        });
       }
     } catch (error) {
+      console.error('Camera error details:', error);
+      
       toast({
         title: "Camera Error",
-        description: "Unable to access camera. Please check permissions or use Demo mode.",
+        description: `Unable to access camera: ${error instanceof Error ? error.message : 'Unknown error'}`,
         variant: "destructive"
       });
-      console.error('Camera error:', error);
     }
   };
 
@@ -288,7 +300,10 @@ export function AIVolumeEstimator({ product, onVolumeEstimated }: { product: any
               {!isCapturing ? (
                 <>
                   <button
-                    onClick={startCamera}
+                    onClick={() => {
+                      console.log('Start Camera button clicked');
+                      startCamera();
+                    }}
                     disabled={isProcessing}
                     className="flex-1 py-2 px-4 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
