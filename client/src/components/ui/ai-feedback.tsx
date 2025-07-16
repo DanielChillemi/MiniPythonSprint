@@ -147,7 +147,7 @@ export function SmartRecommendations({ recommendations }: { recommendations: Arr
   );
 }
 
-export function AIVolumeEstimator({ product, onVolumeEstimated }: { product: any; onVolumeEstimated: (volume: number) => void }) {
+export function AIVolumeEstimator({ product, onVolumeEstimated, onProductDetected }: { product: any; onVolumeEstimated: (volume: number) => void; onProductDetected?: (product: any) => void }) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [confidence, setConfidence] = useState<number | null>(null);
   const [isCapturing, setIsCapturing] = useState(false);
@@ -239,6 +239,11 @@ export function AIVolumeEstimator({ product, onVolumeEstimated }: { product: any
         setConfidence(result.confidence);
         setAnalysis(result.analysis);
         onVolumeEstimated(result.estimatedVolume);
+        
+        // If a product was detected and callback is provided, call it
+        if (result.detectedProduct && onProductDetected) {
+          onProductDetected(result.detectedProduct);
+        }
         
         if (isCapturing) {
           stopCamera();

@@ -138,6 +138,10 @@ export default function SimpleInventory() {
                     <AIVolumeEstimator
                       product={selectedProduct}
                       onVolumeEstimated={handleVolumeEstimated}
+                      onProductDetected={(product) => {
+                        setSelectedProduct(product);
+                        handleProductSelected(product);
+                      }}
                     />
                   </CardContent>
                 </Card>
@@ -185,34 +189,43 @@ export default function SimpleInventory() {
               </Card>
 
               {/* Quantity Input */}
-              {selectedProduct && (
-                <Card className="notebook-card">
-                  <CardHeader>
-                    <CardTitle className="handwritten-title text-2xl">Enter Quantity</CardTitle>
-                    <CardDescription>Count for {selectedProduct.name}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <QuantityInput
-                      product={selectedProduct}
-                      onQuantitySubmitted={handleQuantitySubmitted}
-                      initialQuantity={aiEstimatedVolume}
-                    />
-                    
-                    {/* AI Volume Estimation Success */}
-                    {aiEstimatedVolume && (
-                      <div className="mt-4">
-                        <AIInsight
-                          type="success"
-                          title="AI Volume Applied"
-                          message={`Pre-filled with AI estimated volume: ${aiEstimatedVolume} units`}
-                          confidence={85}
-                          suggestions={['Verify the count manually', 'Adjust if needed', 'Submit when ready']}
-                        />
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              )}
+              <Card className="notebook-card">
+                <CardHeader>
+                  <CardTitle className="handwritten-title text-2xl">Enter Quantity</CardTitle>
+                  <CardDescription>
+                    {selectedProduct ? `Count for ${selectedProduct.name}` : 'Select a product to enter quantity'}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {selectedProduct ? (
+                    <>
+                      <QuantityInput
+                        product={selectedProduct}
+                        onQuantitySubmitted={handleQuantitySubmitted}
+                        initialQuantity={aiEstimatedVolume}
+                      />
+                      
+                      {/* AI Volume Estimation Success */}
+                      {aiEstimatedVolume && (
+                        <div className="mt-4">
+                          <AIInsight
+                            type="success"
+                            title="AI Volume Applied"
+                            message={`Pre-filled with AI estimated volume: ${aiEstimatedVolume} units`}
+                            confidence={85}
+                            suggestions={['Verify the count manually', 'Adjust if needed', 'Submit when ready']}
+                          />
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <Package className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                      <p>Scan a barcode or use AI Volume Estimator to select a product</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             </div>
           </TabsContent>
 
