@@ -271,9 +271,19 @@ export function AIVolumeEstimator({ product, onVolumeEstimated, onProductDetecte
 
   // Effect to sync stream to mobile modal video when it appears
   useEffect(() => {
-    if (isCapturing && streamRef.current && mobileVideoRef.current) {
+    if (isCapturing && streamRef.current) {
       console.log('Syncing stream to mobile modal video');
-      mobileVideoRef.current.srcObject = streamRef.current;
+      
+      // Find the full-screen video element and set its stream
+      const fullScreenVideo = document.querySelector('.md\\:hidden .w-full.h-full.object-cover') as HTMLVideoElement;
+      if (fullScreenVideo) {
+        fullScreenVideo.srcObject = streamRef.current;
+        console.log('Stream set to full-screen video');
+      }
+      
+      if (mobileVideoRef.current) {
+        mobileVideoRef.current.srcObject = streamRef.current;
+      }
     }
   }, [isCapturing]);
 
@@ -391,13 +401,13 @@ export function AIVolumeEstimator({ product, onVolumeEstimated, onProductDetecte
           {/* Hidden canvas for image processing */}
           <canvas ref={canvasRef} className="hidden" />
           
-          {/* Hidden mobile video element - always present */}
+          {/* Desktop mobile video element - always present */}
           <video
             ref={mobileVideoRef}
             autoPlay
             playsInline
             muted
-            className="hidden"
+            className="hidden md:hidden"
             onLoadedMetadata={() => console.log('Mobile video loaded')}
             onCanPlay={() => console.log('Mobile video can play')}
           />
@@ -446,12 +456,18 @@ export function AIVolumeEstimator({ product, onVolumeEstimated, onProductDetecte
         {/* Full-screen video */}
         <div className="flex-1 relative">
           <video
-            ref={mobileVideoRef}
             autoPlay
             playsInline
             muted
             className="w-full h-full object-cover"
             onLoadedMetadata={() => console.log('Full-screen mobile video loaded')}
+            ref={(el) => {
+              if (el && streamRef.current) {
+                console.log('Setting stream to full-screen video element');
+                el.srcObject = streamRef.current;
+                el.play().catch(e => console.log('Video play failed:', e));
+              }
+            }}
           />
           
           {/* Camera controls overlay */}
