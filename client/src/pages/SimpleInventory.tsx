@@ -26,7 +26,7 @@ type TabValue = 'inventory' | 'weather' | 'cost' | 'quickbooks' | 'suppliers';
 
 export default function SimpleInventory() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [scannerMode, setScannerMode] = useState<'camera' | 'demo'>('demo');
+  const [scannerMode, setScannerMode] = useState<'camera' | 'demo' | null>(null);
   const [activeTab, setActiveTab] = useState<TabValue>('inventory');
   const [aiEstimatedVolume, setAIEstimatedVolume] = useState<number | null>(null);
   const [showAIFeatures, setShowAIFeatures] = useState(true);
@@ -131,7 +131,18 @@ export default function SimpleInventory() {
               {showAIFeatures && (
                 <Card className="notebook-card lg:col-span-2">
                   <CardHeader>
-                    <CardTitle className="handwritten-title text-2xl">AI Visual Volume Estimator</CardTitle>
+                    <CardTitle className="handwritten-title text-2xl flex items-center justify-between">
+                      AI Visual Volume Estimator
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setScannerMode(scannerMode ? null : 'demo')}
+                        className="ml-4"
+                      >
+                        <Scan className="w-4 h-4 mr-2" />
+                        {scannerMode ? 'Hide Scanner' : 'Show Scanner'}
+                      </Button>
+                    </CardTitle>
                     <CardDescription>Use camera to analyze product packaging and estimate quantities</CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -143,50 +154,48 @@ export default function SimpleInventory() {
                         handleProductSelected(product);
                       }}
                     />
+                    {/* Optional Barcode Scanner */}
+                    {scannerMode && (
+                      <div className="mt-6 pt-6 border-t border-dashed border-muted-foreground/30">
+                        <div className="mb-4 flex items-center justify-between">
+                          <div>
+                            <h4 className="handwritten-title text-lg flex items-center gap-2">
+                              <Scan className="w-5 h-5" />
+                              Alternative: Barcode Scanner
+                            </h4>
+                            <p className="text-sm text-muted-foreground">Scan products for instant recognition</p>
+                          </div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setScannerMode(scannerMode === 'camera' ? 'demo' : 'camera')}
+                          >
+                            {scannerMode === 'camera' ? 'Demo Mode' : 'Camera Mode'}
+                          </Button>
+                        </div>
+                        
+                        <ScannerErrorBoundary>
+                          {scannerMode === 'camera' ? (
+                            <BarcodeScanner
+                              onProductScanned={(product) => {
+                                setSelectedProduct(product);
+                                handleProductSelected(product);
+                              }}
+                            />
+                          ) : (
+                            <BarcodeScannerDemo
+                              onProductScanned={(product) => {
+                                setSelectedProduct(product);
+                                handleProductSelected(product);
+                              }}
+                            />
+                          )}
+                        </ScannerErrorBoundary>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               )}
-
-              {/* Barcode Scanner */}
-              <Card className="notebook-card">
-                <CardHeader>
-                  <CardTitle className="handwritten-title text-2xl flex items-center gap-2">
-                    <Scan className="w-6 h-6" />
-                    Barcode Scanner
-                  </CardTitle>
-                  <CardDescription>Scan products for instant recognition</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ScannerErrorBoundary>
-                    {scannerMode === 'camera' ? (
-                      <BarcodeScanner
-                        onProductScanned={(product) => {
-                          setSelectedProduct(product);
-                          handleProductSelected(product);
-                        }}
-                      />
-                    ) : (
-                      <BarcodeScannerDemo
-                        onProductScanned={(product) => {
-                          setSelectedProduct(product);
-                          handleProductSelected(product);
-                        }}
-                      />
-                    )}
-                  </ScannerErrorBoundary>
-                  
-                  {/* Simple toggle */}
-                  <div className="mt-4 flex justify-center">
-                    <Button
-                      variant="outline"
-                      onClick={() => setScannerMode(scannerMode === 'camera' ? 'demo' : 'camera')}
-                      size="sm"
-                    >
-                      {scannerMode === 'camera' ? 'Try Demo Mode' : 'Use Camera'}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
 
               {/* Quantity Input */}
               <Card className="notebook-card">
@@ -221,7 +230,7 @@ export default function SimpleInventory() {
                   ) : (
                     <div className="text-center py-8 text-muted-foreground">
                       <Package className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                      <p>Scan a barcode or use AI Volume Estimator to select a product</p>
+                      <p>Use AI Volume Estimator to select and count products</p>
                     </div>
                   )}
                 </CardContent>
