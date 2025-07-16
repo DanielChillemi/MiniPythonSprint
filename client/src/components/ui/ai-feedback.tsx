@@ -157,6 +157,11 @@ export function AIVolumeEstimator({ product, onVolumeEstimated }: { product: any
 
   const startCamera = async () => {
     try {
+      // Check if mediaDevices is available
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('Camera not supported by this browser');
+      }
+
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
           facingMode: 'environment',
@@ -172,6 +177,19 @@ export function AIVolumeEstimator({ product, onVolumeEstimated }: { product: any
       }
     } catch (error) {
       console.error('Camera access failed:', error);
+      
+      // Show user-friendly error message
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      
+      if (errorMessage.includes('Permission denied') || errorMessage.includes('NotAllowedError')) {
+        alert('Camera permission denied. Please allow camera access in your browser settings and try again.');
+      } else if (errorMessage.includes('NotFoundError')) {
+        alert('No camera found. Please make sure your device has a camera and try again.');
+      } else if (errorMessage.includes('NotSupportedError')) {
+        alert('Camera not supported by this browser. Please try a different browser.');
+      } else {
+        alert(`Camera error: ${errorMessage}`);
+      }
     }
   };
 
@@ -183,28 +201,34 @@ export function AIVolumeEstimator({ product, onVolumeEstimated }: { product: any
     setIsCapturing(false);
   };
 
-  const performVolumeEstimation = async () => {
-    if (!videoRef.current || !canvasRef.current) return;
-    
+  const performVolumeEstimation = async (useDemo = false) => {
     setIsProcessing(true);
     
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    const context = canvas.getContext('2d');
-    
-    if (!context) return;
-    
-    // Set canvas size to match video
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    
-    // Draw video frame to canvas
-    context.drawImage(video, 0, 0);
-    
-    // Convert to base64
-    const imageData = canvas.toDataURL('image/jpeg', 0.8);
-    
     try {
+      let imageData = '';
+      
+      if (!useDemo && videoRef.current && canvasRef.current) {
+        // Real camera mode
+        const video = videoRef.current;
+        const canvas = canvasRef.current;
+        const context = canvas.getContext('2d');
+        
+        if (context) {
+          // Set canvas size to match video
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          
+          // Draw video frame to canvas
+          context.drawImage(video, 0, 0);
+          
+          // Convert to base64
+          imageData = canvas.toDataURL('image/jpeg', 0.8);
+        }
+      } else {
+        // Demo mode - use a small placeholder image
+        imageData = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=';
+      }
+      
       const response = await fetch('/api/ai-volume-estimate', {
         method: 'POST',
         headers: {
@@ -222,7 +246,10 @@ export function AIVolumeEstimator({ product, onVolumeEstimated }: { product: any
         setConfidence(result.confidence);
         setAnalysis(result.analysis);
         onVolumeEstimated(result.estimatedVolume);
-        stopCamera();
+        
+        if (isCapturing) {
+          stopCamera();
+        }
       }
     } catch (error) {
       console.error('Volume estimation failed:', error);
@@ -255,19 +282,39 @@ export function AIVolumeEstimator({ product, onVolumeEstimated }: { product: any
           </p>
           
           {/* Camera controls */}
-          <div className="flex space-x-2">
-            {!isCapturing ? (
-              <button
-                onClick={startCamera}
-                disabled={isProcessing}
-                className="flex-1 py-2 px-4 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <span className="flex items-center justify-center space-x-2">
-                  <Camera className="w-4 h-4" />
-                  <span>Start Camera</span>
-                </span>
-              </button>
-            ) : (
+          <div className="space-y-2">
+            {/* Security warning for non-HTTPS */}
+            {location.protocol !== 'https:' && location.hostname !== 'localhost' && (
+              <div className="text-xs text-yellow-600 bg-yellow-50 p-2 rounded">
+                ⚠️ Camera requires HTTPS or localhost. Use demo mode if camera doesn't work.
+              </div>
+            )}
+            
+            <div className="flex space-x-2">
+              {!isCapturing ? (
+                <>
+                  <button
+                    onClick={startCamera}
+                    disabled={isProcessing}
+                    className="flex-1 py-2 px-4 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <span className="flex items-center justify-center space-x-2">
+                      <Camera className="w-4 h-4" />
+                      <span>Start Camera</span>
+                    </span>
+                  </button>
+                  <button
+                    onClick={() => performVolumeEstimation(true)}
+                    disabled={isProcessing}
+                    className="py-2 px-4 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <span className="flex items-center justify-center space-x-2">
+                      <Sparkles className="w-4 h-4" />
+                      <span>Demo</span>
+                    </span>
+                  </button>
+                </>
+              ) : (
               <>
                 <button
                   onClick={performVolumeEstimation}
@@ -295,6 +342,7 @@ export function AIVolumeEstimator({ product, onVolumeEstimated }: { product: any
                 </button>
               </>
             )}
+          </div>
           </div>
           
           {/* Camera preview */}
