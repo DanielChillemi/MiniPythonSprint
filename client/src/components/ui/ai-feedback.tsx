@@ -168,11 +168,16 @@ export function AIVolumeEstimator({ product, onVolumeEstimated, onProductDetecte
         }
       });
       
-      if (videoRef.current || mobileVideoRef.current) {
+      console.log('Camera stream obtained:', stream);
+      
+      // Wait for video elements to be ready
+      setTimeout(() => {
         if (videoRef.current) {
+          console.log('Setting desktop video stream');
           videoRef.current.srcObject = stream;
         }
         if (mobileVideoRef.current) {
+          console.log('Setting mobile video stream');
           mobileVideoRef.current.srcObject = stream;
         }
         streamRef.current = stream;
@@ -182,8 +187,10 @@ export function AIVolumeEstimator({ product, onVolumeEstimated, onProductDetecte
           title: "Camera Started",
           description: "Camera is now active. Point at product packaging and click 'Estimate Volume'.",
         });
-      }
+      }, 100);
+      
     } catch (error) {
+      console.error('Camera error:', error);
       toast({
         title: "Camera Error",
         description: `Unable to access camera: ${error instanceof Error ? error.message : 'Unknown error'}`,
@@ -363,6 +370,8 @@ export function AIVolumeEstimator({ product, onVolumeEstimated, onProductDetecte
               playsInline
               muted
               className="w-full h-48 object-cover rounded-lg bg-gray-100"
+              onLoadedMetadata={() => console.log('Desktop video loaded')}
+              onCanPlay={() => console.log('Desktop video can play')}
             />
             <div className="absolute inset-0 border-2 border-dashed border-purple-400 rounded-lg flex items-center justify-center bg-purple-100/20">
               <div className="text-purple-600 text-sm font-medium">
@@ -381,6 +390,8 @@ export function AIVolumeEstimator({ product, onVolumeEstimated, onProductDetecte
             playsInline
             muted
             className="hidden"
+            onLoadedMetadata={() => console.log('Mobile video loaded')}
+            onCanPlay={() => console.log('Mobile video can play')}
           />
           
           {confidence !== null && (
