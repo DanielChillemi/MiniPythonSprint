@@ -153,6 +153,7 @@ export function AIVolumeEstimator({ product, onVolumeEstimated, onProductDetecte
   const [isCapturing, setIsCapturing] = useState(false);
   const [analysis, setAnalysis] = useState<any>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const mobileVideoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { toast } = useToast();
@@ -167,8 +168,9 @@ export function AIVolumeEstimator({ product, onVolumeEstimated, onProductDetecte
         }
       });
       
-      if (videoRef.current) {
+      if (videoRef.current && mobileVideoRef.current) {
         videoRef.current.srcObject = stream;
+        mobileVideoRef.current.srcObject = stream;
         streamRef.current = stream;
         setIsCapturing(true);
         
@@ -349,8 +351,8 @@ export function AIVolumeEstimator({ product, onVolumeEstimated, onProductDetecte
           </div>
           </div>
           
-          {/* Camera preview - always present but hidden when not capturing */}
-          <div className={`relative ${isCapturing ? 'block' : 'hidden'}`}>
+          {/* Camera preview - always present but hidden when not capturing or on mobile */}
+          <div className={`relative ${isCapturing ? 'hidden md:block' : 'hidden'}`}>
             <video
               ref={videoRef}
               autoPlay
@@ -412,7 +414,7 @@ export function AIVolumeEstimator({ product, onVolumeEstimated, onProductDetecte
         {/* Full-screen video */}
         <div className="flex-1 relative">
           <video
-            ref={videoRef}
+            ref={mobileVideoRef}
             autoPlay
             playsInline
             muted
