@@ -21,9 +21,11 @@ import {
 } from "@/components/ui/form";
 
 interface QuantityInputProps {
-  selectedProduct: Product | null;
+  selectedProduct?: Product | null;
+  product?: Product;
   onQuantitySubmitted: (product: Product, quantity: number) => void;
   disabled?: boolean;
+  initialQuantity?: number | null;
 }
 
 const quantitySchema = z.object({
@@ -34,34 +36,44 @@ const quantitySchema = z.object({
 
 function QuantityInput({ 
   selectedProduct, 
+  product,
   onQuantitySubmitted, 
-  disabled = false 
+  disabled = false,
+  initialQuantity = null
 }: QuantityInputProps) {
   const { logUserAction, logError, trackOperation } = useLogger('QuantityInput');
+  const currentProduct = product || selectedProduct;
   
   const form = useForm<z.infer<typeof quantitySchema>>({
     resolver: zodResolver(quantitySchema),
     defaultValues: {
-      quantity: 0
+      quantity: initialQuantity || 0
     }
   });
 
+  // Update form when initialQuantity changes
+  React.useEffect(() => {
+    if (initialQuantity !== null) {
+      form.setValue('quantity', initialQuantity);
+    }
+  }, [initialQuantity, form]);
+
   const handleSubmit = form.handleSubmit((data) => {
-    if (!selectedProduct) return;
+    if (!currentProduct) return;
     
     const tracker = trackOperation('submit_quantity', {
-      productId: selectedProduct.id,
+      productId: currentProduct.id,
       quantity: data.quantity
     });
 
     try {
-      onQuantitySubmitted(selectedProduct, data.quantity);
+      onQuantitySubmitted(currentProduct, data.quantity);
       
       logUserAction('quantity_submitted', {
-        productId: selectedProduct.id,
-        productSku: selectedProduct.sku,
+        productId: currentProduct.id,
+        productSku: currentProduct.sku,
         quantity: data.quantity,
-        inputMethod: 'manual'
+        inputMethod: initialQuantity ? 'ai_assisted' : 'manual'
       });
 
       // Reset form
@@ -69,7 +81,7 @@ function QuantityInput({
       tracker.end({ success: true });
     } catch (error: any) {
       logError(error, 'quantity_submission', {
-        productId: selectedProduct.id,
+        productId: currentProduct.id,
         quantity: data.quantity
       });
       tracker.end({ success: false, error: error.message });
@@ -86,7 +98,7 @@ function QuantityInput({
       </div>
       
       <AnimatePresence mode="wait">
-        {selectedProduct ? (
+        {currentProduct ? (
           <motion.div
             key="quantity-form"
             initial={{ opacity: 0, scale: 0.95 }}
@@ -97,8 +109,13 @@ function QuantityInput({
             <div className="glass-panel p-5 rounded-lg text-center">
               <p className="sketch-text mb-2">Enter quantity for:</p>
               <p className="text-xl marker-text font-bold highlight highlight-pink">
-                {selectedProduct.name}
+                {currentProduct.name}
               </p>
+              {initialQuantity && (
+                <p className="text-sm text-blue-600 mt-2">
+                  AI suggested: {initialQuantity} units
+                </p>
+              )}
             </div>
 
             <Form {...form}>
