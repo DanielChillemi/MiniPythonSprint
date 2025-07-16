@@ -127,6 +127,22 @@ export default function SimpleInventory() {
             )}
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* AI Volume Estimator - Top Card */}
+              {showAIFeatures && (
+                <Card className="notebook-card lg:col-span-2">
+                  <CardHeader>
+                    <CardTitle className="handwritten-title text-2xl">AI Visual Volume Estimator</CardTitle>
+                    <CardDescription>Use camera to analyze product packaging and estimate quantities</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <AIVolumeEstimator
+                      product={selectedProduct}
+                      onVolumeEstimated={handleVolumeEstimated}
+                    />
+                  </CardContent>
+                </Card>
+              )}
+
               {/* Barcode Scanner */}
               <Card className="notebook-card">
                 <CardHeader>
@@ -194,22 +210,6 @@ export default function SimpleInventory() {
                         />
                       </div>
                     )}
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* AI Features Panel */}
-              {showAIFeatures && selectedProduct && (
-                <Card className="notebook-card">
-                  <CardHeader>
-                    <CardTitle className="handwritten-title text-xl">AI Features</CardTitle>
-                    <CardDescription>Advanced AI-powered inventory tools</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <AIVolumeEstimator
-                      product={selectedProduct}
-                      onVolumeEstimated={handleVolumeEstimated}
-                    />
                   </CardContent>
                 </Card>
               )}

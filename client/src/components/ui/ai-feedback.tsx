@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
-import { Brain, Sparkles, TrendingUp, AlertTriangle, CheckCircle, Zap, Camera, Video, StopCircle } from 'lucide-react';
+import { Brain, Sparkles, TrendingUp, AlertTriangle, CheckCircle, Zap, Camera, Video, StopCircle, Scan } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from './card';
 import { Badge } from './badge';
 import { Alert, AlertDescription } from './alert';
@@ -229,7 +229,7 @@ export function AIVolumeEstimator({ product, onVolumeEstimated }: { product: any
         },
         body: JSON.stringify({ 
           imageData,
-          productInfo: product 
+          productInfo: product || { name: 'Unknown Product' } // Allow estimation without product selection
         })
       });
       
@@ -272,7 +272,7 @@ export function AIVolumeEstimator({ product, onVolumeEstimated }: { product: any
         <div className="space-y-4">
           <div className="space-y-2">
             <p className="text-sm text-muted-foreground">
-              Use Google Cloud Vision API to estimate product volume from camera analysis
+              Use camera to analyze product packaging, scan barcodes, or try demo mode for AI analysis
             </p>
             <div className="text-xs bg-green-50 p-2 rounded border border-green-200">
               ✅ <strong>Demo Mode Available:</strong> The <strong>Demo</strong> button provides full AI analysis without camera access
@@ -288,7 +288,7 @@ export function AIVolumeEstimator({ product, onVolumeEstimated }: { product: any
               </div>
             )}
             
-            <div className="flex space-x-2">
+            <div className="flex flex-wrap gap-2">
               {!isCapturing ? (
                 <>
                   <button
