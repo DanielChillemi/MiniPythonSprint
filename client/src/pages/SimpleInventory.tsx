@@ -236,11 +236,50 @@ export default function SimpleInventory() {
               </Card>
 
               {/* AI Features Panel */}
-              {showAIFeatures && selectedProduct && (
-                <AIVolumeEstimator
-                  product={selectedProduct}
-                  onVolumeEstimated={handleVolumeEstimated}
-                />
+              {showAIFeatures && (
+                <Card className="notebook-card">
+                  <CardHeader>
+                    <CardTitle className="handwritten-title text-xl">AI Features</CardTitle>
+                    <CardDescription>Advanced AI-powered inventory tools</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {selectedProduct ? (
+                        <AIVolumeEstimator
+                          product={selectedProduct}
+                          onVolumeEstimated={handleVolumeEstimated}
+                        />
+                      ) : (
+                        <AIInsight
+                          type="info"
+                          title="AI Volume Estimation Ready"
+                          message="Select a product above to use AI-powered volume estimation with camera analysis."
+                          suggestions={['Choose a product from the search results', 'Or scan a barcode to get started', 'AI will analyze packaging for accurate counts']}
+                        />
+                      )}
+                      
+                      <SmartRecommendations
+                        recommendations={[
+                          {
+                            title: "Optimize Stock Levels",
+                            description: "AI suggests adjusting par levels based on demand patterns",
+                            impact: "high"
+                          },
+                          {
+                            title: "Seasonal Adjustment",
+                            description: "Consider weather-based demand forecasting",
+                            impact: "medium"
+                          },
+                          {
+                            title: "Packaging Efficiency",
+                            description: "Group similar items for faster counting",
+                            impact: "low"
+                          }
+                        ]}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
               )}
             </div>
           </TabsContent>
