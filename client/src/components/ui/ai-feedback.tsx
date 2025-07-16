@@ -8,6 +8,7 @@ import { Brain, Sparkles, TrendingUp, AlertTriangle, CheckCircle, Zap, Camera, V
 import { Card, CardContent, CardHeader, CardTitle } from './card';
 import { Badge } from './badge';
 import { Alert, AlertDescription } from './alert';
+import { useToast } from '@/hooks/use-toast';
 
 interface AIInsightProps {
   type: 'success' | 'warning' | 'info' | 'analysis';
@@ -154,19 +155,15 @@ export function AIVolumeEstimator({ product, onVolumeEstimated }: { product: any
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { toast } = useToast();
 
   const startCamera = async () => {
     try {
-      // Check if mediaDevices is available
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        throw new Error('Camera not supported by this browser');
-      }
-
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
           facingMode: 'environment',
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
+          width: { ideal: window.innerWidth < 768 ? 640 : 1280 },
+          height: { ideal: window.innerWidth < 768 ? 480 : 720 }
         }
       });
       
@@ -176,24 +173,12 @@ export function AIVolumeEstimator({ product, onVolumeEstimated }: { product: any
         setIsCapturing(true);
       }
     } catch (error) {
-      console.error('Camera access failed:', error);
-      
-      // Show user-friendly error message
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      
-      console.log('Camera error details:', error);
-      
-      if (errorMessage.includes('Permission denied') || errorMessage.includes('NotAllowedError')) {
-        alert('Camera permission denied. Please:\n1. Click the camera icon in your browser address bar\n2. Allow camera access\n3. Refresh the page and try again\n\nOr use the Demo button instead.');
-      } else if (errorMessage.includes('NotFoundError')) {
-        alert('No camera found. Please make sure your device has a camera or use the Demo button.');
-      } else if (errorMessage.includes('NotSupportedError')) {
-        alert('Camera not supported by this browser. Please try Chrome, Firefox, or Safari, or use the Demo button.');
-      } else if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
-        alert('Camera requires HTTPS connection. Please use the Demo button instead.');
-      } else {
-        alert(`Camera error: ${errorMessage}\n\nPlease try the Demo button for AI analysis without camera.`);
-      }
+      toast({
+        title: "Camera Error",
+        description: "Unable to access camera. Please check permissions or use Demo mode.",
+        variant: "destructive"
+      });
+      console.error('Camera error:', error);
     }
   };
 
