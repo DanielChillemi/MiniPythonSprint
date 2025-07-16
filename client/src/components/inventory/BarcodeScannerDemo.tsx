@@ -18,7 +18,11 @@ const DEMO_BARCODES = [
   { barcode: "083085200012", name: "Jack Daniel's Whiskey" }
 ];
 
-export default function BarcodeScannerDemo() {
+interface BarcodeScannerDemoProps {
+  onProductScanned?: (product: any) => void;
+}
+
+export default function BarcodeScannerDemo({ onProductScanned }: BarcodeScannerDemoProps) {
   const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState<any>(null);
   const { toast } = useToast();
@@ -28,12 +32,12 @@ export default function BarcodeScannerDemo() {
     setResult(null);
 
     try {
-      // Create a test image that simulates barcode scanning
-      const response = await apiRequest('/api/scan-barcode', {
+      // Use the test-barcode endpoint directly with the barcode
+      const response = await fetch(`/api/test-barcode/${barcode}`, {
         method: 'POST',
-        body: JSON.stringify({
-          imageData: `data:image/jpeg;base64,${btoa(barcode)}` // Simple simulation
-        })
+        headers: {
+          'Content-Type': 'application/json',
+        }
       });
 
       const data = await response.json();
@@ -44,8 +48,20 @@ export default function BarcodeScannerDemo() {
           title: "Product Found!",
           description: `${data.productName} - ${data.barcode}`,
         });
+        
+        // Call the callback if provided
+        if (onProductScanned) {
+          onProductScanned({
+            name: data.productName,
+            barcode: data.barcode,
+            brand: data.brand,
+            sku: data.sku,
+            unitPrice: data.unitPrice
+          });
+        }
       }
     } catch (error) {
+      console.error('Scan error:', error);
       toast({
         title: "Scan Error",
         description: "Failed to scan barcode",

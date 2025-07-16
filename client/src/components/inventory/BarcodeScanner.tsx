@@ -91,8 +91,11 @@ export default function BarcodeScanner({ onProductScanned, onBarcodeDetected }: 
     
     try {
       // Send to backend for processing
-      const response = await apiRequest('/api/scan-barcode', {
+      const response = await fetch('/api/scan-barcode', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ imageData })
       });
       
