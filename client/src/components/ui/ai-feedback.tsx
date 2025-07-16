@@ -269,6 +269,14 @@ export function AIVolumeEstimator({ product, onVolumeEstimated, onProductDetecte
     }
   };
 
+  // Effect to sync stream to mobile modal video when it appears
+  useEffect(() => {
+    if (isCapturing && streamRef.current && mobileVideoRef.current) {
+      console.log('Syncing stream to mobile modal video');
+      mobileVideoRef.current.srcObject = streamRef.current;
+    }
+  }, [isCapturing]);
+
   // Cleanup camera stream on unmount
   useEffect(() => {
     return () => {
@@ -443,7 +451,7 @@ export function AIVolumeEstimator({ product, onVolumeEstimated, onProductDetecte
             playsInline
             muted
             className="w-full h-full object-cover"
-            style={{ display: isCapturing ? 'block' : 'none' }}
+            onLoadedMetadata={() => console.log('Full-screen mobile video loaded')}
           />
           
           {/* Camera controls overlay */}
