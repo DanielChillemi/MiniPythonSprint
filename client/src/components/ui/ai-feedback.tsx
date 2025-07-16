@@ -181,14 +181,18 @@ export function AIVolumeEstimator({ product, onVolumeEstimated }: { product: any
       // Show user-friendly error message
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       
+      console.log('Camera error details:', error);
+      
       if (errorMessage.includes('Permission denied') || errorMessage.includes('NotAllowedError')) {
-        alert('Camera permission denied. Please allow camera access in your browser settings and try again.');
+        alert('Camera permission denied. Please:\n1. Click the camera icon in your browser address bar\n2. Allow camera access\n3. Refresh the page and try again\n\nOr use the Demo button instead.');
       } else if (errorMessage.includes('NotFoundError')) {
-        alert('No camera found. Please make sure your device has a camera and try again.');
+        alert('No camera found. Please make sure your device has a camera or use the Demo button.');
       } else if (errorMessage.includes('NotSupportedError')) {
-        alert('Camera not supported by this browser. Please try a different browser.');
+        alert('Camera not supported by this browser. Please try Chrome, Firefox, or Safari, or use the Demo button.');
+      } else if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+        alert('Camera requires HTTPS connection. Please use the Demo button instead.');
       } else {
-        alert(`Camera error: ${errorMessage}`);
+        alert(`Camera error: ${errorMessage}\n\nPlease try the Demo button for AI analysis without camera.`);
       }
     }
   };
@@ -277,9 +281,14 @@ export function AIVolumeEstimator({ product, onVolumeEstimated }: { product: any
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          <p className="text-sm text-muted-foreground">
-            Use Google Cloud Vision API to estimate product volume from camera analysis
-          </p>
+          <div className="space-y-2">
+            <p className="text-sm text-muted-foreground">
+              Use Google Cloud Vision API to estimate product volume from camera analysis
+            </p>
+            <div className="text-xs bg-green-50 p-2 rounded border border-green-200">
+              ✅ <strong>Demo Mode Available:</strong> The <strong>Demo</strong> button provides full AI analysis without camera access
+            </div>
+          </div>
           
           {/* Camera controls */}
           <div className="space-y-2">
