@@ -171,16 +171,25 @@ export function AIVolumeEstimator({ product, onVolumeEstimated }: { product: any
       });
       
       console.log('Camera stream obtained:', stream);
+      console.log('Video element ref:', videoRef.current);
       
       if (videoRef.current) {
+        console.log('Setting stream on video element');
         videoRef.current.srcObject = stream;
         streamRef.current = stream;
         setIsCapturing(true);
-        console.log('Camera started successfully');
+        console.log('Camera started successfully, isCapturing set to true');
         
         toast({
           title: "Camera Started",
           description: "Camera is now active. Point at product packaging and click 'Estimate Volume'.",
+        });
+      } else {
+        console.error('Video element not found!');
+        toast({
+          title: "Camera Error",
+          description: "Video element not found. Please try again.",
+          variant: "destructive"
         });
       }
     } catch (error) {
